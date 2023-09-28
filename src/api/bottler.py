@@ -41,7 +41,7 @@ def get_bottle_plan():
 
         red_ml = data[0]
 
-        print(red_ml)
+        print(red_ml)   
 
 
     return [
