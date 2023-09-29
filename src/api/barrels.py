@@ -22,29 +22,21 @@ class Barrel(BaseModel):
 @router.post("/deliver")
 def post_deliver_barrels(barrels_delivered: list[Barrel]):
     """ """
+    print(barrels_delivered)
+    
+    red_ml = 0
+    gold_spent = 0
+    for barrel in barrels_delivered:
+        red_ml += barrel.ml_per_barrel * barrel.quantity
+        gold_spent += barrel.price * barrel.quantity
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT num_red_potions, gold, num_red_ml FROM global_inventory WHERE id=1"))
+        result = connection.execute(sqlalchemy.text("SELECT gold, num_red_ml FROM global_inventory WHERE id=1"))
         data = result.fetchone()
 
-        curr_red_potions = data[0]
-        gold = data[1]
-        num_red_ml = data[2]
-
-        gold += 400
-
-        if curr_red_potions < 10:
-            for barrel in barrels_delivered:
-                print(barrel)
-                if barrel.sku == "SMALL_RED_BARREL":
-                    if (gold >= barrel.price):
-                        gold -= barrel.price
-                        num_red_ml += barrel.ml_per_barrel
-                    else:
-                        return "NOT ENOUGH GOLD"
+        gold = data[0] - gold_spent
+        num_red_ml = data[1] + red_ml
 
         connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml = :new_num_red_ml WHERE id=1"), {"new_gold": gold, "new_num_red_ml": num_red_ml})
-
-    print(barrels_delivered)
 
     return "OK"
 
@@ -52,6 +44,8 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
 @router.post("/plan")
 def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     """ """
+    print(wholesale_catalog)
+
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("SELECT num_red_potions, gold FROM global_inventory WHERE id=1"))
         data = result.fetchone()
@@ -60,15 +54,22 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         gold = data[1]
 
         if curr_red_potions < 10:
+            one_barrel = False
             for barrel in wholesale_catalog:
-                if barrel.sku == "SMALL_RED_BARREL":
-                    if (gold >= barrel.price):
-                        return [
-                            {
-                                "sku": "SMALL_RED_BARREL",
-                                "quantity": barrel.quantity,
-                            }
-                        ]
+                if barrel.sku == "SMALL_RED_BARREL" and barrel.quantity > 0 and gold >= barrel.price:
+                    one_barrel = True
+            
+            if (one_barrel == True):
+                return [
+                    {
+                        "sku": "SMALL_RED_BARREL",
+                        "quantity": 1,
+                    }
+            ]
+            else:
+                return []
+        else:
+            return []
 
-    print(wholesale_catalog)
+
 
