@@ -44,7 +44,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
             new_num_red_ml = num_red_ml + 500
 
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml :new_num_red_ml WHERE id=1"), {"new_gold": new_gold, "new_num_red_ml": new_num_red_ml})
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml = :new_num_red_ml WHERE id=1"), {"new_gold": new_gold, "new_num_red_ml": new_num_red_ml})
 
             return [
             {
