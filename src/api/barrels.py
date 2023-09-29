@@ -30,10 +30,11 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         gold = data[1]
         num_red_ml = data[2]
 
-        for barrel in barrels_delivered:
-            if barrel.sku == "SMALL_RED_BARREL":
-                if curr_red_potions < 10:
-                    if (gold <= barrel.price):
+        if curr_red_potions < 10:
+            for barrel in barrels_delivered:
+                print(barrel)
+                if barrel.sku == "SMALL_RED_BARREL":
+                    if (gold >= barrel.price):
                         gold -= barrel.price
                         num_red_ml += barrel.ml_per_barrel
                     else:
@@ -50,19 +51,22 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
 def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     """ """
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory WHERE id=1"))
+        result = connection.execute(sqlalchemy.text("SELECT num_red_potions, gold FROM global_inventory WHERE id=1"))
         data = result.fetchone()
 
         curr_red_potions = data[0]
+        gold = data[1]
 
         if curr_red_potions < 10:
-
-            return [
-            {
-                "sku": "SMALL_RED_BARREL",
-                "quantity": 1,
-            }
-        ]
+            for barrel in wholesale_catalog:
+                if barrel.sku == "SMALL_RED_BARREL":
+                    if (gold >= barrel.price):
+                        return [
+                            {
+                                "sku": "SMALL_RED_BARREL",
+                                "quantity": barrel.quantity,
+                            }
+                        ]
 
     print(wholesale_catalog)
 
