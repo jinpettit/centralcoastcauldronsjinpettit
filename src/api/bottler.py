@@ -45,9 +45,9 @@ def get_bottle_plan():
 
         new_num_red_potions = (num_red_ml // 100)
 
-        new_num_red_ml = num_red_ml - (new_num_red_potions * 100)
-
         curr_red_potions = new_num_red_potions + num_red_potions
+
+        new_num_red_ml = num_red_ml - (new_num_red_potions * 100)
 
         connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = :new_num_red_ml, num_red_potions = :curr_red_potions WHERE id=1"), 
                            {"new_num_red_ml": new_num_red_ml,"curr_red_potions": curr_red_potions})

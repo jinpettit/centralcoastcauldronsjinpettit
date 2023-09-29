@@ -22,6 +22,25 @@ class Barrel(BaseModel):
 @router.post("/deliver")
 def post_deliver_barrels(barrels_delivered: list[Barrel]):
     """ """
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text("SELECT num_red_potions, gold, num_red_ml FROM global_inventory WHERE id=1"))
+        data = result.fetchone()
+
+        curr_red_potions = data[0]
+        gold = data[1]
+        num_red_ml = data[2]
+
+        for barrel in barrels_delivered:
+            if barrel.sku == "SMALL_RED_BARREL":
+                if curr_red_potions < 10:
+                    if (gold <= barrel.price):
+                        gold -= barrel.price
+                        num_red_ml += barrel.ml_per_barrel
+                    else:
+                        return "NOT ENOUGH GOLD"
+
+        connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml = :new_num_red_ml WHERE id=1"), {"new_gold": gold, "new_num_red_ml": num_red_ml})
+
     print(barrels_delivered)
 
     return "OK"
@@ -31,20 +50,12 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
 def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     """ """
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT num_red_potions, gold, num_red_ml FROM global_inventory WHERE id=1"))
+        result = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory WHERE id=1"))
         data = result.fetchone()
 
         curr_red_potions = data[0]
-        gold = data[1]
-        num_red_ml = data[2]
 
         if curr_red_potions < 10:
-
-            new_gold = gold - 50
-
-            new_num_red_ml = num_red_ml + 500
-
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml = :new_num_red_ml WHERE id=1"), {"new_gold": new_gold, "new_num_red_ml": new_num_red_ml})
 
             return [
             {
