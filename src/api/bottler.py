@@ -50,7 +50,7 @@ def get_bottle_plan():
         curr_red_bottles = new_num_red_bottles + num_red_bottles
 
         connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = :new_num_red_ml, num_red_bottles = :curr_red_bottles WHERE id=1"), 
-                           {"new_num_red_ml": new_num_red_ml}, {"curr_red_bottles": curr_red_bottles})
+                           {"new_num_red_ml": new_num_red_ml,"curr_red_bottles": curr_red_bottles})
 
         return [
                 {
