@@ -30,6 +30,8 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         gold = data[1]
         num_red_ml = data[2]
 
+        gold += 400
+
         if curr_red_potions < 10:
             for barrel in barrels_delivered:
                 print(barrel)
@@ -56,8 +58,6 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
 
         curr_red_potions = data[0]
         gold = data[1]
-
-        gold += 400
 
         if curr_red_potions < 10:
             for barrel in wholesale_catalog:
