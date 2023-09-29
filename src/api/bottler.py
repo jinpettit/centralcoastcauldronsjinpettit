@@ -39,7 +39,7 @@ def post_deliver_potions(potions_delivered: list[PotionInventory]):
     
     print(potions_delivered)
 
-    return "OK"
+    return "OK" 
 
 # Gets called 4 times a day
 @router.post("/plan")
