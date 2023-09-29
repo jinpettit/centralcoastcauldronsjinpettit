@@ -16,12 +16,17 @@ def get_catalog():
         result = connection.execute(sqlalchemy.text("SELECT num_red_potions FROM global_inventory WHERE id=1"))
         data = result.fetchone()
 
-    return [
-            {
-                "sku": "RED_POTION_0",
-                "name": "red potion",
-                "quantity": 1,
-                "price": 50,
-                "potion_type": [100, 0, 0, 0],
-            }
-        ]
+        max_items = 20
+
+        num_red_potions = min(max_items, data[0])
+
+        for i in range (num_red_potions):
+            return [
+                {
+                    "sku": f"RED_POTION_{i}",
+                    "name": "red potion",
+                    "quantity": num_red_potions,
+                    "price": 50,
+                    "potion_type": [100, 0, 0, 0],
+                }
+            ]
