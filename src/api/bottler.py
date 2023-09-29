@@ -16,7 +16,7 @@ class PotionInventory(BaseModel):
     quantity: int
 
 @router.post("/deliver")
-def post_deliver_bottles(potions_delivered: list[PotionInventory]):
+def post_deliver_potions(potions_delivered: list[PotionInventory]):
     """ """
     print(potions_delivered)
 
@@ -36,25 +36,25 @@ def get_bottle_plan():
     # Initial logic: bottle all barrels into red potions.
 
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT num_red_ml, num_red_bottles FROM global_inventory WHERE id=1"))
+        result = connection.execute(sqlalchemy.text("SELECT num_red_ml, num_red_potions FROM global_inventory WHERE id=1"))
 
         data = result.fetchone()
 
         num_red_ml = data[0]
-        num_red_bottles = data[1]
+        num_red_potions = data[1]
 
-        new_num_red_bottles = (num_red_ml // 100)
+        new_num_red_potions = (num_red_ml // 100)
 
-        new_num_red_ml = num_red_ml - (new_num_red_bottles * 100)
+        new_num_red_ml = num_red_ml - (new_num_red_potions * 100)
 
-        curr_red_bottles = new_num_red_bottles + num_red_bottles
+        curr_red_potions = new_num_red_potions + num_red_potions
 
-        connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = :new_num_red_ml, num_red_bottles = :curr_red_bottles WHERE id=1"), 
-                           {"new_num_red_ml": new_num_red_ml,"curr_red_bottles": curr_red_bottles})
+        connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = :new_num_red_ml, num_red_potions = :curr_red_potions WHERE id=1"), 
+                           {"new_num_red_ml": new_num_red_ml,"curr_red_potions": curr_red_potions})
 
         return [
                 {
                     "potion_type": [100, 0, 0, 0],
-                    "quantity": num_red_bottles,
+                    "quantity": num_red_potions,
                 }
             ]
