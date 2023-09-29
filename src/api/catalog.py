@@ -20,13 +20,16 @@ def get_catalog():
 
         num_red_potions = min(max_items, data[0])
 
+        catalog = []
         for i in range (num_red_potions):
-            return [
-                {
+            item = {
                     "sku": f"RED_POTION_{i}",
                     "name": "red potion",
                     "quantity": num_red_potions,
                     "price": 50,
                     "potion_type": [100, 0, 0, 0],
                 }
-            ]
+            catalog.append(item)
+        
+        return catalog
+            
