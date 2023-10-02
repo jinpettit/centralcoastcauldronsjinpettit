@@ -60,6 +60,11 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
             data = result.fetchone()
 
             num_red_potions = data[0] - item_quantity
+
+            if (num_red_potions < 0):
+                del total_carts[cart_id]
+                return "NOT ENOUGH RED POTIONS IN INVENTORY"
+            
             gold = data[1] + int(payment)
 
             connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_potions = :num_red_potions, gold = :gold WHERE id=1"), 
