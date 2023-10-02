@@ -24,19 +24,20 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
     """ """
     print(barrels_delivered)
     
-    red_ml = 0
-    gold_spent = 0
     for barrel in barrels_delivered:
-        red_ml += barrel.ml_per_barrel * barrel.quantity
-        gold_spent += barrel.price * barrel.quantity
-    with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT gold, num_red_ml FROM global_inventory WHERE id=1"))
-        data = result.fetchone()
+        if barrel.sku == "SMALL_RED_BARREL":
+            red_ml = barrel.ml_per_barrel
+            gold_spent = barrel.price
+            with db.engine.begin() as connection:
+                result = connection.execute(sqlalchemy.text("SELECT gold, num_red_ml FROM global_inventory WHERE id=1"))
+                data = result.fetchone()
 
-        gold = data[0] - gold_spent
-        num_red_ml = data[1] + red_ml
+                gold = data[0] - gold_spent
+                num_red_ml = data[1] + red_ml
 
-        connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml = :new_num_red_ml WHERE id=1"), {"new_gold": gold, "new_num_red_ml": num_red_ml})
+                connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml = :new_num_red_ml WHERE id=1"), {"new_gold": gold, "new_num_red_ml": num_red_ml})
+
+            break
 
     return "OK"
 
@@ -60,11 +61,10 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                         return [
                             {
                                 "sku": "SMALL_RED_BARREL",
-                                "quantity": barrel.quantity,
+                                "quantity": 1,
                             }
                         ]
-        else:
-            return []
+        return []
 
 
 

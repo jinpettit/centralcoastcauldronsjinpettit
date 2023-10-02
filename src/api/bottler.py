@@ -21,7 +21,7 @@ def post_deliver_potions(potions_delivered: list[PotionInventory]):
     print(potions_delivered)
 
     for potion in potions_delivered:
-        if (potion.potion_type == [100, 0, 0, 0]):
+        if (potion.potion_type[0] == 100):
             with db.engine.begin() as connection:   
                 result = connection.execute(sqlalchemy.text("SELECT num_red_ml, num_red_potions FROM global_inventory WHERE id=1"))
 

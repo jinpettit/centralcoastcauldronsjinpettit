@@ -18,11 +18,14 @@ def get_catalog():
 
         num_red_potions = data[0]
 
-        return {
-            "sku": "RED_POTION",
-            "name": "red potion",
-            "quantity": num_red_potions,
-            "price": 50,
-            "potion_type": [100, 0, 0, 0],
-        }
+        if (num_red_potions > 0):
+            return {
+                "sku": "RED_POTION",
+                "name": "red potion",
+                "quantity": num_red_potions,
+                "price": 50,
+                "potion_type": [100, 0, 0, 0],
+            }
+        else:
+            return []
             
