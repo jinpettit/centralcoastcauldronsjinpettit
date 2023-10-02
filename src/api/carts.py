@@ -54,7 +54,6 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     item_quantity = total_carts[cart_id].quantity
 
     print(item_sku)
-    print(item_quantity)
 
     if item_sku == "RED_POTION":
         with db.engine.begin() as connection:
