@@ -61,6 +61,8 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
 
             num_red_potions = data[0] - item_quantity
 
+            print(num_red_potions)
+            
             if (num_red_potions < 0):
                 del total_carts[cart_id]
                 return "NOT ENOUGH RED POTIONS IN INVENTORY"
