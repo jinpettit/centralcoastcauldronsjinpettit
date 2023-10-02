@@ -62,6 +62,7 @@ def get_bottle_plan():
         new_num_red_potions = (num_red_ml / 100)
 
         if new_num_red_potions > 0:
+            print(new_num_red_potions)
             return [
                     {
                         "potion_type": [100, 0, 0, 0],
