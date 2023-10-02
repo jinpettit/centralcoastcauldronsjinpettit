@@ -41,7 +41,7 @@ class CartItem(BaseModel):
 @router.post("/{cart_id}/items/{item_sku}")
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
     """ """
-    total_carts.update({cart_id : Item(cart_item.quantity, item_sku)})
+    total_carts.update({cart_id : Item(item_sku, cart_item.quantity)})
     return "OK"
 
 class CartCheckout(BaseModel):
@@ -50,14 +50,13 @@ class CartCheckout(BaseModel):
 @router.post("/{cart_id}/checkout")
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     """ """
-    payment = cart_checkout.payment
     item_sku = total_carts[cart_id].item_sku
     item_quantity = total_carts[cart_id].quantity
 
     print(item_sku)
     print(item_quantity)
 
-    if item_sku.strip() == "RED_POTION":
+    if item_sku == "RED_POTION":
         with db.engine.begin() as connection:
             result = connection.execute(sqlalchemy.text("SELECT num_red_potions, gold FROM global_inventory WHERE id=1"))
             data = result.fetchone()
@@ -70,7 +69,9 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                 del total_carts[cart_id]
                 return "NOT ENOUGH RED POTIONS IN INVENTORY"
             
-            gold = data[1] + int(payment)
+            payment = (item_quantity * 50)
+            
+            gold = data[1] + payment
 
             connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_potions = :num_red_potions, gold = :gold WHERE id=1"), 
                             {"num_red_potions": num_red_potions,"gold": gold})
