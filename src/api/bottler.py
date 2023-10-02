@@ -60,11 +60,14 @@ def get_bottle_plan():
 
         num_red_ml = data[0]
 
-        new_num_red_potions = (num_red_ml / 100)
+        if (num_red_ml > 0):
+            new_num_red_potions = (num_red_ml / 100)
 
-        return [
-                {
-                    "potion_type": [100, 0, 0, 0],
-                    "quantity": new_num_red_potions,
-                }
-            ]
+            return [
+                    {
+                        "potion_type": [100, 0, 0, 0],
+                        "quantity": new_num_red_potions,
+                    }
+                ]
+        else:
+            return []
