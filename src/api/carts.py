@@ -57,7 +57,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     print(item_sku)
     print(item_quantity)
 
-    if item_sku == 'RED_POTION':
+    if item_sku.strip() == "RED_POTION":
         with db.engine.begin() as connection:
             result = connection.execute(sqlalchemy.text("SELECT num_red_potions, gold FROM global_inventory WHERE id=1"))
             data = result.fetchone()
