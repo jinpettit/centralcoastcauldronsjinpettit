@@ -19,7 +19,6 @@ class PotionInventory(BaseModel):
 def post_deliver_potions(potions_delivered: list[PotionInventory]):
     """ """
     print(potions_delivered)
-    print(potions_delivered)
 
     for potion in potions_delivered:
         with db.engine.begin() as connection:   
