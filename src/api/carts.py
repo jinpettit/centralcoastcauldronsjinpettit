@@ -54,7 +54,10 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     item_sku = total_carts[cart_id].item_sku
     item_quantity = total_carts[cart_id].quantity
 
-    if item_sku == "RED_POTION":
+    print(item_sku)
+    print(item_quantity)
+
+    if item_sku == 'RED_POTION':
         with db.engine.begin() as connection:
             result = connection.execute(sqlalchemy.text("SELECT num_red_potions, gold FROM global_inventory WHERE id=1"))
             data = result.fetchone()
@@ -62,7 +65,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
             num_red_potions = data[0] - item_quantity
 
             print(num_red_potions)
-            
+
             if (num_red_potions < 0):
                 del total_carts[cart_id]
                 return "NOT ENOUGH RED POTIONS IN INVENTORY"
