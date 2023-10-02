@@ -60,7 +60,7 @@ def get_bottle_plan():
 
         num_red_ml = data[0]
 
-        new_num_red_potions = (num_red_ml / 100)
+        new_num_red_potions = (num_red_ml // 100)
 
         if new_num_red_potions > 0:
             print(new_num_red_potions)
