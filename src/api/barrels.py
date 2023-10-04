@@ -24,10 +24,15 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
     """ """
     print(barrels_delivered)
     
+    red_ml = 0
+    blue_ml = 0
+    green_ml = 0
+    
     for barrel in barrels_delivered:
         if barrel.sku == "SMALL_RED_BARREL":
             red_ml = barrel.ml_per_barrel
             gold_spent = barrel.price
+
             with db.engine.begin() as connection:
                 result = connection.execute(sqlalchemy.text("SELECT gold, num_red_ml FROM global_inventory WHERE id=1"))
                 data = result.fetchone()
