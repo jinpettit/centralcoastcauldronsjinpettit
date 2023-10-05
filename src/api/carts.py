@@ -68,7 +68,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                 del total_carts[cart_id]
                 return "NOT ENOUGH RED POTIONS IN INVENTORY"
             
-            payment = (item_quantity * 200)
+            payment = (item_quantity * 50)
             
             gold = data[1] + payment
 
