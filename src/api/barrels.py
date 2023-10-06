@@ -30,7 +30,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
     gold_spent = 0
     
     for barrel in barrels_delivered:
-        gold_spent += barrel.price
+        gold_spent += barrel.price * barrel.quantity
         if barrel.sku == "SMALL_RED_BARREL":
             red_ml = barrel.ml_per_barrel * barrel.quantity
         elif barrel.sku == "SMALL_BLUE_BARREL":
