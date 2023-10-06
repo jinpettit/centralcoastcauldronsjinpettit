@@ -27,22 +27,28 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
     red_ml = 0
     blue_ml = 0
     green_ml = 0
+    gold_spent = 0
     
     for barrel in barrels_delivered:
+        gold_spent += barrel.price
         if barrel.sku == "SMALL_RED_BARREL":
-            red_ml = barrel.ml_per_barrel
-            gold_spent = barrel.price
+            red_ml = barrel.ml_per_barrel * barrel.quantity
+        elif barrel.sku == "SMALL_BLUE_BARREL":
+            blue_ml = barrel.ml_per_barrel * barrel.quantity
+        elif barrel.sku == "SMALL_GREEN_BARREL":
+            green_ml = barrel.ml_per_barrel * barrel.quantity
 
-            with db.engine.begin() as connection:
-                result = connection.execute(sqlalchemy.text("SELECT gold, num_red_ml FROM global_inventory WHERE id=1"))
-                data = result.fetchone()
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
+        data = result.fetchone()
 
-                gold = data[0] - gold_spent
-                num_red_ml = data[1] + red_ml
+        gold = data.gold - gold_spent
+        num_red_ml = data.num_red_ml + red_ml
+        num_blue_ml = data.num_blue_ml + blue_ml
+        num_green_ml = data.num_green_ml + green_ml
 
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml = :new_num_red_ml WHERE id=1"), {"new_gold": gold, "new_num_red_ml": num_red_ml})
-
-            break
+        connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml = :new_num_red_ml, num_blue_ml = :new_num_blue_ml, num_green_ml = :new_num_green_ml WHERE id=1"), 
+                           {"new_gold": gold, "new_num_red_ml": num_red_ml, "new_num_blue_ml": num_blue_ml, "new_num_green_ml": num_green_ml})
 
     return "OK"
 
@@ -59,32 +65,32 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
         curr_red_potions = data.num_red_potions
         gold = data.gold
 
-        lst = []
+        barrel_list = []
         for barrel in wholesale_catalog:
             if barrel.sku == "SMALL_RED_BARREL":
-                if gold >= barrel.price:
-                    gold -= barrel.price
-                    lst.append({
+                if gold >= barrel.price * barrel.quantity:
+                    gold -= barrel.price * barrel.quantity
+                    barrel_list.append({
                             "sku": "SMALL_RED_BARREL",
-                            "quantity": 1,
+                            "quantity": barrel.quantity,
                         })
             '''
             if barrel.sku == "SMALL_BLUE_BARREL":
                 if gold >= barrel.price:
                     gold -= barrel.price
-                    lst.append({
+                    barrel_list.append({
                             "sku": "SMALL_BLUE_BARREL",
                             "quantity": 1,
                         })
             if barrel.sku == "SMALL_GREEN_BARREL":
                 if gold >= barrel.price:
                     gold -= barrel.price
-                    lst.append({
+                    barrel_list.append({
                             "sku": "SMALL_GREEN_BARREL",
                             "quantity": 1,
                         })
             '''
-        return lst
+        return barrel_list
 
 
 
