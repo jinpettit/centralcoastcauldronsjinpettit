@@ -83,7 +83,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
 
     total_carts.pop(cart_id)
 
-    print("RED BOUGHT " + str(num_red_potions) + " GREEN BOUGHT " + str(num_green_potions) + " BLUE BOUGHT" + str(num_green_potions))
+    print("RED BOUGHT " + str(red_potions_purchase) + " GREEN BOUGHT " + str(green_potions_purchase) + " BLUE BOUGHT" + str(blue_potions_purchase))
     print("total_potions_bought " + str(total_potions_bought) + " total_gold_paid " + str(payment)) 
 
     return {"total_potions_bought": total_potions_bought, "total_gold_paid": payment}
