@@ -60,7 +60,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
         if potion == "BLUE_POTION":
             blue_potions_purchase = total_carts[cart_id][potion]
 
-    payment = (red_potions_purchase * 50) + (green_potions_purchase * 50) + (blue_potions_purchase * 60)
+    payment = (red_potions_purchase * 50) + (green_potions_purchase * 1) + (blue_potions_purchase * 1)
     total_potions_bought = red_potions_purchase + green_potions_purchase + blue_potions_purchase
 
     with db.engine.begin() as connection:
