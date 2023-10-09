@@ -50,7 +50,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml = :new_num_red_ml, num_blue_ml = :new_num_blue_ml, num_green_ml = :new_num_green_ml WHERE id=1"), 
                            {"new_gold": gold, "new_num_red_ml": num_red_ml, "new_num_blue_ml": num_blue_ml, "new_num_green_ml": num_green_ml})
 
-    print("new_gold: " + gold + " RED_ML: " + num_red_ml + " GREEN_ML: " + num_green_ml + " BLUE_ML: " + num_blue_ml)
+    print("new_gold: " + str(gold) + " RED_ML: " + str(num_red_ml) + " GREEN_ML: " + str(num_green_ml) + " BLUE_ML: " + str(num_blue_ml))
 
     return "OK"
 

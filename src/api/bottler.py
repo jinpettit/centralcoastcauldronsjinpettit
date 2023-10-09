@@ -53,7 +53,7 @@ def post_deliver_potions(potions_delivered: list[PotionInventory]):
         connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = :new_num_red_ml, num_red_potions = :num_red_potions, num_green_ml = :new_num_green_ml, num_green_potions = :curr_green_potions, num_blue_ml = :new_num_blue_ml, num_blue_potions = :curr_blue_potions WHERE id=1"), 
                     {"new_num_red_ml": num_red_ml,"curr_red_potions": num_red_potions, "new_green_red_ml": num_green_ml,"curr_green_potions": num_green_potions, "new_num_blue_ml": num_blue_ml,"curr_blue_potions": num_blue_potions})
 
-    print("RED_ML: " + num_red_ml + " RED_POTION: " + num_red_potions + " GREEN_ML: " + num_green_ml + " GREEN_POTION: " + num_green_potions + " BLUE_ML: " + num_blue_ml + " BLUE_POTION: " + num_blue_potions)
+    print("RED_ML: " + str(num_red_ml) + " RED_POTION: " + str(num_red_potions) + " GREEN_ML: " + str(num_green_ml) + " GREEN_POTION: " + str(num_green_potions) + " BLUE_ML: " + str(num_blue_ml) + " BLUE_POTION: " + str(num_blue_potions))
     return "OK" 
 
 # Gets called 4 times a day
