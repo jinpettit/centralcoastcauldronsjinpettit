@@ -42,19 +42,19 @@ def post_deliver_potions(potions_delivered: list[PotionInventory]):
 
         data = result.fetchone()
 
-        num_red_ml = data.num_red_ml - red_ml_used
+        new_num_red_ml = data.num_red_ml - red_ml_used
         total_red_potions = data.num_red_potions + curr_red_potions
 
-        num_green_ml = data.num_green_ml - green_ml_used
+        new_num_green_ml = data.num_green_ml - green_ml_used
         total_green_potions = data.num_green_potions + curr_green_potions
 
-        num_blue_ml = data.num_blue_ml - blue_ml_used
+        new_num_blue_ml = data.num_blue_ml - blue_ml_used
         total_blue_potions = data.num_blue_potions + curr_blue_potions
 
         connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = :new_num_red_ml, num_red_potions = :curr_red_potions, num_green_ml = :new_num_green_ml, num_green_potions = :curr_green_potions, num_blue_ml = :new_num_blue_ml, num_blue_potions = :curr_blue_potions WHERE id=1"), 
-                    {"new_num_red_ml": num_red_ml,"curr_red_potions": total_red_potions, "new_num_green_ml": num_green_ml,"curr_green_potions": total_green_potions, "new_num_blue_ml": num_blue_ml,"curr_blue_potions": total_blue_potions})
+                    {"new_num_red_ml": new_num_red_ml,"curr_red_potions": total_red_potions, "new_num_green_ml": new_num_green_ml,"curr_green_potions": total_green_potions, "new_num_blue_ml": new_num_green_ml,"curr_blue_potions": total_blue_potions})
 
-    print("RED_ML: " + str(num_red_ml) + " RED_POTION: " + str(total_red_potions) + " GREEN_ML: " + str(num_green_ml) + " GREEN_POTION: " + str(total_green_potions) + " BLUE_ML: " + str(num_blue_ml) + " BLUE_POTION: " + str(total_blue_potions))
+    print("RED_ML: " + str(new_num_green_ml) + " RED_POTION: " + str(total_red_potions) + " GREEN_ML: " + str(new_num_green_ml) + " GREEN_POTION: " + str(total_green_potions) + " BLUE_ML: " + str(new_num_green_ml) + " BLUE_POTION: " + str(total_blue_potions))
     return "OK" 
 
 # Gets called 4 times a day
