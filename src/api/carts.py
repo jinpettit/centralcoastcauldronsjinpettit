@@ -13,10 +13,6 @@ router = APIRouter(
 total_carts = {}
 curr_cart_id = 0
 
-class Item:
-    def __init__(self, item_sku, quantity):
-        self.item_sku = item_sku
-        self.quantity = quantity
 
 class NewCart(BaseModel):
     customer: str
@@ -26,6 +22,7 @@ def create_cart(new_cart: NewCart):
     """ """
     global curr_cart_id
     curr_cart_id += 1
+    total_carts[curr_cart_id] = {}
     return {"cart_id": curr_cart_id}
 
 
@@ -41,7 +38,7 @@ class CartItem(BaseModel):
 @router.post("/{cart_id}/items/{item_sku}")
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
     """ """
-    total_carts.update({cart_id : Item(item_sku, cart_item.quantity)})
+    total_carts[cart_id].update({item_sku : cart_item.quantity})
     return "OK"
 
 class CartCheckout(BaseModel):
@@ -50,31 +47,43 @@ class CartCheckout(BaseModel):
 @router.post("/{cart_id}/checkout")
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     """ """
-    item_sku = total_carts[cart_id].item_sku
-    item_quantity = total_carts[cart_id].quantity
+    payment = 0
+    red_potions_purchase = 0
+    green_potions_purchase = 0
+    blue_potions_purchase = 0
 
-    print(item_sku)
+    for potion in total_carts[cart_id].keys():
+        if potion == "RED_POTION":
+            red_potions_purchase = total_carts[cart_id][potion]
+        if potion == "GREEN_POTION":
+            green_potions_purchase = total_carts[cart_id][potion]
+        if potion == "BLUE_POTION":
+            blue_potions_purchase = total_carts[cart_id][potion]
 
-    if item_sku == "RED_POTION":
-        with db.engine.begin() as connection:
-            result = connection.execute(sqlalchemy.text("SELECT num_red_potions, gold FROM global_inventory WHERE id=1"))
-            data = result.fetchone()
+    payment = (red_potions_purchase * 50) + (green_potions_purchase * 50) + (blue_potions_purchase * 60)
+    total_potions_bought = red_potions_purchase + green_potions_purchase + blue_potions_purchase
 
-            num_red_potions = data[0] - item_quantity
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
+        data = result.fetchone()
 
-            print(num_red_potions)
+        num_red_potions = data.num_red_potions - red_potions_purchase
+        num_green_potions = data.num_green_potions - green_potions_purchase
+        num_blue_potions = data.num_blue_potions - blue_potions_purchase
 
-            if (num_red_potions < 0):
-                del total_carts[cart_id]
-                return "NOT ENOUGH RED POTIONS IN INVENTORY"
+        if num_red_potions < 0 or num_blue_potions < 0 or num_green_potions < 0:
+            total_carts.pop(cart_id)
+            return "NOT ENOUGH POTIONS IN INVENTORY"
+        
+        gold = data.gold + payment
+
+        connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_potions = :num_red_potions, num_green_potions = :num_green_potions, num_blue_potions = :num_blue_potions,gold = :gold WHERE id=1"), 
+                        {"num_red_potions": num_red_potions, "num_green_potions": num_green_potions, "num_blue_potions": num_blue_potions, "gold": gold})
             
-            payment = (item_quantity * 50)
-            
-            gold = data[1] + payment
 
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_potions = :num_red_potions, gold = :gold WHERE id=1"), 
-                            {"num_red_potions": num_red_potions,"gold": gold})
+    total_carts.pop(cart_id)
 
-    del total_carts[cart_id]
+    print("RED BOUGHT " + num_red_potions + " GREEN BOUGHT " + num_green_potions + " BLUE BOUGHT" + num_green_potions)
+    print("total_potions_bought " + total_potions_bought + " total_gold_paid " + payment) 
 
-    return {"total_potions_bought": item_quantity, "total_gold_paid": payment}
+    return {"total_potions_bought": total_potions_bought, "total_gold_paid": payment}

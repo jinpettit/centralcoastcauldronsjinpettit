@@ -18,24 +18,42 @@ class PotionInventory(BaseModel):
 @router.post("/deliver")
 def post_deliver_potions(potions_delivered: list[PotionInventory]):
     """ """
+    red_ml_used = 0
+    curr_red_potions = 0
+    green_ml_used = 0
+    curr_green_potions = 0
+    blue_ml_used = 0
+    curr_blue_potions = 0
 
     for potion in potions_delivered:
-        with db.engine.begin() as connection:   
-            result = connection.execute(sqlalchemy.text("SELECT num_red_ml, num_red_potions FROM global_inventory WHERE id=1"))
+        if potion.potion_type[0] == 100:
+            red_ml_used = (potion.quantity * 100)
+            curr_red_potions = potion.quantity
+        elif potion.potion_type[1] == 100:
+            green_ml_used = (potion.quantity * 100)
+            curr_green_potions = potion.quantity
+        elif potion.potion_type[2] == 100:
+            blue_ml_used = (potion.quantity * 100)
+            curr_blue_potions = potion.quantity
+    with db.engine.begin() as connection:   
 
-            data = result.fetchone()
+        result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
 
-            num_red_ml = data[0]
-            num_red_potions = data[1]
+        data = result.fetchone()
 
-            curr_red_potions = potion.quantity + num_red_potions
+        num_red_ml = data.num_red_ml - red_ml_used
+        num_red_potions = data.num_red_potions + curr_red_potions
 
-            new_num_red_ml = num_red_ml - (potion.quantity * 100)
+        num_green_ml = data.num_green_ml - green_ml_used
+        num_green_potions = data.num_green_potions + curr_green_potions
 
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = :new_num_red_ml, num_red_potions = :curr_red_potions WHERE id=1"), 
-                        {"new_num_red_ml": new_num_red_ml,"curr_red_potions": curr_red_potions})
+        num_blue_ml = data.num_blue_ml - blue_ml_used
+        num_blue_potions = data.num_blue_potions + curr_blue_potions
 
+        connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = :new_num_red_ml, num_red_potions = :num_red_potions, num_green_ml = :new_num_green_ml, num_green_potions = :curr_green_potions, num_blue_ml = :new_num_blue_ml, num_blue_potions = :curr_blue_potions WHERE id=1"), 
+                    {"new_num_red_ml": num_red_ml,"curr_red_potions": num_red_potions, "new_green_red_ml": num_green_ml,"curr_green_potions": num_green_potions, "new_num_blue_ml": num_blue_ml,"curr_blue_potions": num_blue_potions})
 
+    print("RED_ML: " + num_red_ml + " RED_POTION: " + num_red_potions + " GREEN_ML: " + num_green_ml + " GREEN_POTION: " + num_green_potions + " BLUE_ML: " + num_blue_ml + " BLUE_POTION: " + num_blue_potions)
     return "OK" 
 
 # Gets called 4 times a day
@@ -57,23 +75,30 @@ def get_bottle_plan():
         data = result.fetchone()
 
         num_red_ml = data.num_red_ml
-        new_num_red_potions = (num_red_ml // 100)
-        '''
-        num_blue_ml = data.num_blue_ml
         num_green_ml = data.num_green_ml
+        num_blue_ml = data.num_blue_ml
 
-
-        new_num_blue_potions = (num_blue_ml // 100)
+        new_num_red_potions = (num_red_ml // 100)
         new_num_green_potions = (num_green_ml // 100)
-        '''
-        total_potions = new_num_red_potions #+ new_num_blue_potions + new_num_green_potions
+        new_num_blue_potions = (num_blue_ml // 100)
+
+        total_potions = new_num_red_potions + new_num_blue_potions + new_num_green_potions
         potion_list = []
         if total_potions > 0:
-            return [
-                    {
+            if (new_num_red_potions > 0):
+                potion_list.append({
                         "potion_type": [100, 0, 0, 0],
                         "quantity": new_num_red_potions,
-                    }
-                ]
-        else:
-            return potion_list
+                })
+            if (new_num_green_potions > 0):
+                potion_list.append({
+                        "potion_type": [0, 100, 0, 0],
+                        "quantity": new_num_green_potions,
+                })
+            if (new_num_blue_potions > 0):
+                potion_list.append({
+                        "potion_type": [0, 0, 100, 0],
+                        "quantity": new_num_blue_potions,
+                })
+        print(potion_list)
+        return potion_list
