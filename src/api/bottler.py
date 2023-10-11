@@ -74,7 +74,7 @@ def get_bottle_plan():
 
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
-
+        
         data = result.fetchone()
 
         num_red_ml = data.num_red_ml

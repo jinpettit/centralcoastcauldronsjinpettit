@@ -14,11 +14,17 @@ def get_catalog():
 
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
+        potion = connection.execute(sqlalchemy.text("SELECT * FROM potion_table"))
         data = result.fetchone()
 
+        for row in potion:
+            print(row)
+            
         num_red_potions = data.num_red_potions
         num_green_potions = data.num_green_potions
         num_blue_potions = data.num_blue_potions
+
+
 
         catalog_list = []
 
