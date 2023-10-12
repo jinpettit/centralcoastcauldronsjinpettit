@@ -89,9 +89,9 @@ def get_bottle_plan():
         new_num_purple_potions = min((num_red_ml // 50), (num_blue_ml // 50))
 
         potions_dic["RED_POTION"] = new_num_red_potions
-        potions_dic["GREEN_POTION"] = new_num_red_potions
-        potions_dic["BLUE_POTION"] = new_num_red_potions
-        potions_dic["GREEN_POTION"] = new_num_red_potions
+        potions_dic["GREEN_POTION"] = new_num_green_potions
+        potions_dic["BLUE_POTION"] = new_num_blue_potions
+        potions_dic["PURPLE_POTION"] = new_num_purple_potions
 
         total_potions = new_num_red_potions + new_num_blue_potions + new_num_green_potions + new_num_purple_potions
         potion_list = []
