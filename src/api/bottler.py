@@ -96,7 +96,7 @@ def get_bottle_plan():
         total_potions = new_num_red_potions + new_num_blue_potions + new_num_green_potions + new_num_purple_potions
         potion_list = []
         if total_potions > 0:
-            potions = connection.execute(sqlalchemy.text("SELECT * FROM potions"))
+            potions = connection.execute(sqlalchemy.text("SELECT * FROM potion_table"))
             for row in potions:
                 if potions_dic[row.sku] > 0:
                     potion_list.append({
