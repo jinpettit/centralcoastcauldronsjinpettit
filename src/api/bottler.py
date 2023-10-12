@@ -77,31 +77,31 @@ def get_bottle_plan():
         
         data = result.fetchone()
 
+        potions_dic = {}
+
         num_red_ml = data.num_red_ml
         num_green_ml = data.num_green_ml
         num_blue_ml = data.num_blue_ml
 
-        new_num_red_potions = (num_red_ml // 100)
-        new_num_green_potions = (num_green_ml // 100)
-        new_num_blue_potions = (num_blue_ml // 100)
+        new_num_red_potions = (num_red_ml // 100) // 2
+        new_num_green_potions = (num_green_ml // 100) 
+        new_num_blue_potions = (num_blue_ml // 100) // 2
+        new_num_purple_potions = min((num_red_ml // 50), (num_blue_ml // 50))
 
-        total_potions = new_num_red_potions + new_num_blue_potions + new_num_green_potions
+        potions_dic["RED_POTION"] = new_num_red_potions
+        potions_dic["GREEN_POTION"] = new_num_red_potions
+        potions_dic["BLUE_POTION"] = new_num_red_potions
+        potions_dic["GREEN_POTION"] = new_num_red_potions
+
+        total_potions = new_num_red_potions + new_num_blue_potions + new_num_green_potions + new_num_purple_potions
         potion_list = []
         if total_potions > 0:
-            if (new_num_red_potions > 0):
-                potion_list.append({
-                        "potion_type": [100, 0, 0, 0],
-                        "quantity": new_num_red_potions,
-                })
-            if (new_num_green_potions > 0):
-                potion_list.append({
-                        "potion_type": [0, 100, 0, 0],
-                        "quantity": new_num_green_potions,
-                })
-            if (new_num_blue_potions > 0):
-                potion_list.append({
-                        "potion_type": [0, 0, 100, 0],
-                        "quantity": new_num_blue_potions,
-                })
+            potions = connection.execute(sqlalchemy.text("SELECT * FROM potions"))
+            for row in potions:
+                if potions_dic[row.sku] > 0:
+                    potion_list.append({
+                        "potion_type": [row.red, row.green, row.blue, row.dark],
+                        "quantity": potions_dic[row.sku],
+                    })
         print(potion_list)
         return potion_list
