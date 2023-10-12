@@ -25,9 +25,9 @@ def post_deliver_potions(potions_delivered: list[PotionInventory]):
         for row in result:
             for potion in potions_delivered:
                 if (potion.potion_type == [row.red, row.green, row.blue, row.dark]):
-                    red_ml_used = row.red * row.quantity
-                    green_ml_used = row.green * row.quantity
-                    blue_ml_used = row.blue * row.quantity
+                    red_ml_used = row.red * potion.quantity
+                    green_ml_used = row.green * potion.quantity
+                    blue_ml_used = row.blue * potion.quantity
 
                     connection.execute(sqlalchemy.text("UPDATE potion_table SET quantity = quantity + :potion_quantity WHERE sku = :sku"), {"potion_quantity": potion.quantity, "sku": row.sku})
 
