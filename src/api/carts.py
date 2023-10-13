@@ -10,20 +10,12 @@ router = APIRouter(
     dependencies=[Depends(auth.get_api_key)],
 )
 
-total_carts = {}
-curr_cart_id = 0
-
 class NewCart(BaseModel):
     customer: str
 
 @router.post("/")
 def create_cart(new_cart: NewCart):
     """ """
-    
-    global curr_cart_id
-    curr_cart_id += 1
-    total_carts[curr_cart_id] = {}
-    
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("INSERT INTO carts (customer) VALUES (:name) RETURNING id"), {"name": new_cart.customer})
     return {"cart_id": result[0]}
@@ -31,7 +23,6 @@ def create_cart(new_cart: NewCart):
 @router.get("/{cart_id}")
 def get_cart(cart_id: int):
     """ """
-    return {total_carts[cart_id]}
 
 
 class CartItem(BaseModel):
@@ -40,7 +31,6 @@ class CartItem(BaseModel):
 @router.post("/{cart_id}/items/{item_sku}")
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
     """ """
-    total_carts[cart_id].update({item_sku : cart_item.quantity})
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("SELECT id FROM potion_inventory WHERE sku = :item_sku"), 
                                     {"item_sku": item_sku})
@@ -54,9 +44,11 @@ def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
 class CartCheckout(BaseModel):
     payment: str
 
+
 @router.post("/{cart_id}/checkout")
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     """ """
+    '''
     payment = 0
     red_potions_purchase = 0
     green_potions_purchase = 0
@@ -97,3 +89,4 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     print("total_potions_bought " + str(total_potions_bought) + " total_gold_paid " + str(payment)) 
 
     return {"total_potions_bought": total_potions_bought, "total_gold_paid": payment}
+    '''
