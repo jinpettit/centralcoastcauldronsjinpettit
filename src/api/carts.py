@@ -19,7 +19,7 @@ def create_cart(new_cart: NewCart):
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("INSERT INTO carts (customer) VALUES (:name) RETURNING id"), {"name": new_cart.customer})
 
-        data = result.fetch()
+        data = result.fetchone()
         
     return {"cart_id": data[0]}
 
@@ -38,7 +38,7 @@ def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
         result = connection.execute(sqlalchemy.text("SELECT id FROM potion_table WHERE sku = :item_sku"), 
                                     {"item_sku": item_sku})
 
-        data = result.fetch()
+        data = result.fetchone()
         
         connection.execute(sqlalchemy.text("INSERT INTO cart_items (cart_id, quantity, potion_id) VALUES (:cart_id, :quantity, potion_id)"), 
                                     {"cart_id": cart_id, "quantity": cart_item.quantity, "potion_id": data[0]})
