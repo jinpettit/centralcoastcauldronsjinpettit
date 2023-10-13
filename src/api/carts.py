@@ -26,7 +26,7 @@ def create_cart(new_cart: NewCart):
     
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("INSERT INTO carts (customer) VALUES (:name) RETURNING id"), {"name": new_cart.customer})
-    return {"cart_id": result}
+    return {"cart_id": result[0]}
 
 @router.get("/{cart_id}")
 def get_cart(cart_id: int):
