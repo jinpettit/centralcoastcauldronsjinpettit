@@ -23,7 +23,7 @@ def create_cart(new_cart: NewCart):
     curr_cart_id += 1
     total_carts[curr_cart_id] = {}
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text("INSERT INTO carts (customer) VALUES ( :new_cart.customer)"))
+        connection.execute(sqlalchemy.text("INSERT INTO carts (customer) VALUES (:name)", {"name": new_cart.customer}))
     return {"cart_id": curr_cart_id}
 
 
