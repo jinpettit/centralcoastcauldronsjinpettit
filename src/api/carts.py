@@ -42,13 +42,13 @@ def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
     """ """
     #total_carts[cart_id].update({item_sku : cart_item.quantity})
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT * FROM potion_inventory WHERE sku = :item_sku RETURNING id"), 
+        result = connection.execute(sqlalchemy.text("SELECT id FROM potion_inventory WHERE sku = :item_sku"), 
                                     {"item_sku": item_sku})
 
         connection.execute(sqlalchemy.text("INSERT INTO cart_items (cart_id, quantity, potion_id) VALUES (:cart_id, :quantity, potion_id)"), 
-                                    {"cart_id": cart_id, "quantity": cart_item.quantity, "potion_id": result})
+                                    {"cart_id": cart_id, "quantity": cart_item.quantity, "potion_id": result[0]})
         
-    print(result)
+    print(result[0])
     return "OK"
 
 class CartCheckout(BaseModel):
