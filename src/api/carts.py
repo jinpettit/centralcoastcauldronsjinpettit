@@ -45,7 +45,7 @@ def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
         connection.execute(sqlalchemy.text("INSERT INTO cart_items (cart_id, quantity, potion_id) VALUES (:cart_id, :quantity, :potion_id)"), 
                                     {"cart_id": cart_id, "quantity": cart_item.quantity, "potion_id": potion_id})
         
-    print(result[0])
+    print(potion_id)
     return "OK"
 
 class CartCheckout(BaseModel):
