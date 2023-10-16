@@ -62,7 +62,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                                     {"cart_id": cart_id})
         
         for row in result:
-
+            print(row)
             payment = row.price * row.quantity
 
             total_payment += payment
