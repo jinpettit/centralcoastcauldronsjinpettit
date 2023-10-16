@@ -58,7 +58,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     total_payment = 0
     total_potions_bought = 0
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT * FROM cart_items LEFT JOIN potion_table ON cart_items.potion_id = potion_table.id WHERE cart_id = :cart_id"), 
+        result = connection.execute(sqlalchemy.text("SELECT cart_items.cart_id, cart_items.quantity, cart_items.potion_id, potion_table.price FROM cart_items LEFT JOIN potion_table ON cart_items.potion_id = potion_table.id WHERE cart_id = :cart_id"), 
                                     {"cart_id": cart_id})
         
         for row in result:
@@ -67,6 +67,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
 
             total_payment += payment
             total_potions_bought += row.quantity
+
             '''
             connection.execute(sqlalchemy.text("UPDATE potion_table SET quantity = quantity - :potions WHERE id = :potion_id"), 
                                                 {"potions": row.quantity, "potion_id": row.potion_id})
