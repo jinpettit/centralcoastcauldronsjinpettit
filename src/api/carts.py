@@ -58,7 +58,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     total_payment = 0
     total_potions_bought = 0
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT * FROM cart_items JOIN potion_table ON cart_items.potion_id = potion_table.id WHERE cart_id = :cart_id"), 
+        result = connection.execute(sqlalchemy.text("SELECT * FROM cart_items LEFT JOIN potion_table ON cart_items.potion_id = potion_table.id WHERE cart_id = :cart_id"), 
                                     {"cart_id": cart_id})
         
         for row in result:
