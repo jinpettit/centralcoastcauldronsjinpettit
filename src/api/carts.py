@@ -64,11 +64,11 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
         for row in result:
             payment = row.price * row.quantity
 
-            connection.execute(sqlalchemy.text("UPDATE potion_table SET quantity = quantity - :potions WHERE id = :potion_id"), 
-                                                {"potions": row.quantity, "potion_id": row.potion_id})
-            
             total_payment += payment
             total_potions_bought += row.quantity
+
+            connection.execute(sqlalchemy.text("UPDATE potion_table SET quantity = quantity - :potions WHERE id = :potion_id"), 
+                                                {"potions": row.quantity, "potion_id": row.potion_id})
 
             connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold + :payment, total_potions = total_potions - :potions"), 
                                                 {"payment": payment, "potions": row.quantity})
