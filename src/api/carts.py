@@ -62,13 +62,11 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                                     {"cart_id": cart_id})
         
         for row in result:
-            print(row)
             payment = row.price * row.quantity
 
             total_payment += payment
             total_potions_bought += row.quantity
 
-            '''
             connection.execute(sqlalchemy.text("UPDATE potion_table SET quantity = quantity - :potions WHERE id = :potion_id"), 
                                                 {"potions": row.quantity, "potion_id": row.potion_id})
 
@@ -80,7 +78,6 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
             
             connection.execute(sqlalchemy.text("DELETE FROM carts WHERE id = :id"), 
                                                 {"id": cart_id})
-            '''
         
     print("total_potions_bought " + str(total_potions_bought) + " total_gold_paid " + str(payment)) 
     return {"total_potions_bought": total_potions_bought, "total_gold_paid": payment}
