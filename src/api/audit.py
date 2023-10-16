@@ -18,7 +18,7 @@ def get_inventory():
         result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
         data = result.fetchone()
 
-    return {"num_of_potions": data.num_red_potions + data.num_blue_potions + data.num_green_potions, 
+    return {"num_of_potions": data.total_potions, 
             "ml_in_barrels": data.num_red_ml + data.num_blue_ml + data.num_green_ml, 
             "gold": data.gold}
 
