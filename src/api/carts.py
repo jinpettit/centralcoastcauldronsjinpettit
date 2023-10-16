@@ -55,7 +55,6 @@ class CartCheckout(BaseModel):
 @router.post("/{cart_id}/checkout")
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     """ """
-    '''
     total_payment = 0
     total_potions_bought = 0
     with db.engine.begin() as connection:
@@ -82,7 +81,6 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
         
     print("total_potions_bought " + str(total_potions_bought) + " total_gold_paid " + str(payment)) 
     return {"total_potions_bought": total_potions_bought, "total_gold_paid": payment}
-    '''
     '''
     payment = 0
     red_potions_purchase = 0
