@@ -39,8 +39,6 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
             green_ml = barrel.ml_per_barrel * barrel.quantity
 
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
-        data = result.fetchone()
 
         connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change) VALUES (:red_ml, :green_ml, :blue_ml)"), 
                                    {"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml})
