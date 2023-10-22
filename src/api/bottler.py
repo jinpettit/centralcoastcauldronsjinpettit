@@ -60,13 +60,12 @@ def get_bottle_plan():
 
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(red_change),0) AS red_ml, COALESCE(SUM(green_change),0) AS green_ml, COALESCE(SUM(blue_change),0) AS blue_ml, COALESCE(SUM(dark_change),0) AS dark_ml FROM ml_ledger"))
-        result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
         
         data = result.fetchone()
 
-        num_red_ml = data.num_red_ml
-        num_green_ml = data.num_green_ml
-        num_blue_ml = data.num_blue_ml
+        num_red_ml = data.red_ml
+        num_green_ml = data.green_ml
+        num_blue_ml = data.blue_ml
 
         potions = connection.execute(sqlalchemy.text("SELECT * FROM potion_table"))
 
