@@ -60,7 +60,6 @@ def get_bottle_plan():
         num_red_ml = data.num_red_ml
         num_green_ml = data.num_green_ml
         num_blue_ml = data.num_blue_ml
-        num_dark_ml = data.num_dark_ml
 
         potions = connection.execute(sqlalchemy.text("SELECT * FROM potion_table"))
 
