@@ -52,7 +52,7 @@ def get_bottle_plan():
     # Initial logic: bottle all barrels into red potions.
 
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(red_change),0) AS red_ml, COALESCE(SUM(green_change),0) AS green_ml, COALESCE(SUM(blue_change),0) AS blue_ml, COALESCE(SUM(dark_change),0) AS dark_ml FROM ml_ledger_entities"))
+        result = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(red_change),0) AS red_ml, COALESCE(SUM(green_change),0) AS green_ml, COALESCE(SUM(blue_change),0) AS blue_ml, COALESCE(SUM(dark_change),0) AS dark_ml FROM ml_ledger"))
         result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
         
         data = result.fetchone()
