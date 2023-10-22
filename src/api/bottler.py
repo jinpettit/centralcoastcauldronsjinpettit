@@ -52,35 +52,31 @@ def get_bottle_plan():
     # Initial logic: bottle all barrels into red potions.
 
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
+        result = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(red_change),0) AS red_ml, COALESCE(SUM(green_change),0) AS green_ml, COALESCE(SUM(blue_change),0) AS blue_ml, COALESCE(SUM(dark_change),0) AS dark_ml FROM ml_ledger_entities"))
         
         data = result.fetchone()
-
-        potions_dic = {}
 
         num_red_ml = data.num_red_ml
         num_green_ml = data.num_green_ml
         num_blue_ml = data.num_blue_ml
+        num_dark_ml = data.num_dark_ml
 
-        new_num_red_potions = (num_red_ml // 100) // 2
-        new_num_green_potions = (num_green_ml // 100) 
-        new_num_blue_potions = (num_blue_ml // 100) // 2
-        new_num_purple_potions = min((num_red_ml // 100), (num_blue_ml // 100))
+        potions = connection.execute(sqlalchemy.text("SELECT * FROM potion_table"))
 
-        potions_dic["RED_POTION"] = new_num_red_potions
-        potions_dic["GREEN_POTION"] = new_num_green_potions
-        potions_dic["BLUE_POTION"] = new_num_blue_potions
-        potions_dic["PURPLE_POTION"] = new_num_purple_potions
-
-        total_potions = new_num_red_potions + new_num_blue_potions + new_num_green_potions + new_num_purple_potions
         potion_list = []
-        if total_potions > 0:
-            potions = connection.execute(sqlalchemy.text("SELECT * FROM potion_table"))
-            for row in potions:
-                if potions_dic[row.sku] > 0:
-                    potion_list.append({
+
+        for row in potions:
+            potions_made = 0
+            while (potions_made < 5 and row.red <= num_red_ml and row.green <= num_green_ml and row.red <= num_blue_ml):
+                num_red_ml -= row.red
+                num_green_ml -= row.green
+                num_blue_ml -= row.blue
+
+            if (potions_made > 0):
+                potion_list.append({
                         "potion_type": [row.red, row.green, row.blue, row.dark],
-                        "quantity": potions_dic[row.sku],
+                        "quantity": potions_made,
                     })
+
         print(potion_list)
         return potion_list
