@@ -17,7 +17,7 @@ def get_catalog():
 
         catalog_list = []
         for row in result:
-            sum_potions = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(potion_change), 0) FROM potion_ledger WHERE potion_id = :potion:id"), {"potion_id": row.id}) 
+            sum_potions = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(potion_change), 0) FROM potion_ledger WHERE potion_id = :potion_id"), {"potion_id": row.id}) 
 
             potions = sum_potions.scalar_one()
 
