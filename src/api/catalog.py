@@ -17,11 +17,15 @@ def get_catalog():
 
         catalog_list = []
         for row in result:
-            if row.quantity > 0:
+            sum_potions = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(potion_change), 0) FROM potion_ledger WHERE potion_id = :potion:id"), {"potion_id": row.id}) 
+
+            potions = sum_potions.scalar_one()
+
+            if potions > 0:
                 catalog_list.append({
                     "sku": row.sku,
                     "name": row.name,
-                    "quantity": row.quantity,
+                    "quantity": potions,
                     "price": row.price,
                     "potion_type": [row.red, row.green, row.blue, row.dark],
                 })

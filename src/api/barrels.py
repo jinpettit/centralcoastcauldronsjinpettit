@@ -48,16 +48,6 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (gold_change) VALUES (:gold_spent)"), 
                                    {"gold_spent": -gold_spent})
 
-        gold = data.gold - gold_spent
-        num_red_ml = data.num_red_ml + red_ml
-        num_blue_ml = data.num_blue_ml + blue_ml
-        num_green_ml = data.num_green_ml + green_ml
-
-        connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = :new_gold, num_red_ml = :new_num_red_ml, num_blue_ml = :new_num_blue_ml, num_green_ml = :new_num_green_ml WHERE id=1"), 
-                           {"new_gold": gold, "new_num_red_ml": num_red_ml, "new_num_blue_ml": num_blue_ml, "new_num_green_ml": num_green_ml})
-
-    print("new_gold: " + str(gold) + " RED_ML: " + str(num_red_ml) + " GREEN_ML: " + str(num_green_ml) + " BLUE_ML: " + str(num_blue_ml))
-
     return "OK"
 
 # Gets called once a day
