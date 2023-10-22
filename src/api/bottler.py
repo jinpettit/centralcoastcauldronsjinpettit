@@ -18,24 +18,31 @@ class PotionInventory(BaseModel):
 @router.post("/deliver")
 def post_deliver_potions(potions_delivered: list[PotionInventory]):
     """ """
+    red_ml_used = 0
+    green_ml_used = 0
+    blue_ml_used = 0
+
+    for potion in potions_delivered:
+        red_ml_used += potion.quantity * potion.potion_type[0]
+        green_ml_used += potion.quantity * potion.potion_type[1]
+        blue_ml_used += potion.quantity * potion.potion_type[2]
 
     with db.engine.begin() as connection:   
-        result = connection.execute(sqlalchemy.text("SELECT * FROM potion_table"))
 
-        for row in result:
-            for potion in potions_delivered:
-                if (potion.potion_type == [row.red, row.green, row.blue, row.dark]):
-                    red_ml_used = row.red * potion.quantity
-                    green_ml_used = row.green * potion.quantity
-                    blue_ml_used = row.blue * potion.quantity
+        for potion in potions_delivered:
+            result = connection.execute(sqlalchemy.text("SELECT id FROM potion_table WHERE red = :red and green = :green and blue = :blue and dark = :dark"),
+                                            {"red": potion.potion_type[0], "green": potion.potion_type[1], "blue": potion.potion_type[2], "dark": potion.potion_type[3]})
+            
+            data = result.fetchone()
 
-                    connection.execute(sqlalchemy.text("UPDATE potion_table SET quantity = quantity + :potion_quantity WHERE sku = :sku"), {"potion_quantity": potion.quantity, "sku": row.sku})
+            potion_id = data[0]
 
-                    connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_red_ml = num_red_ml - :new_num_red_ml, num_green_ml = num_green_ml - :new_num_green_ml, num_blue_ml = num_blue_ml - :new_num_blue_ml, total_potions = total_potions + :potions_quantity WHERE id=1"), 
-                                {"new_num_red_ml": red_ml_used,
-                                "new_num_green_ml": green_ml_used, 
-                                "new_num_blue_ml": blue_ml_used,
-                                "potions_quantity": potion.quantity})
+            connection.execute(sqlalchemy.text("INSERT INTO potion_ledger (potion_id, potion_change) VALUES (:potion_id, :potion_change)"), 
+                                {"potion_id": potion_id, "potion_change": potion.quantity})
+                
+        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change) VALUES (:red_ml, :green_ml, :blue_ml)"), 
+                                {"red_ml": -red_ml_used, "green_ml": -green_ml_used, "blue_ml": -blue_ml_used})
+        
     return "OK" 
 
 # Gets called 4 times a day

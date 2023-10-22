@@ -42,6 +42,12 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
         data = result.fetchone()
 
+        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change) VALUES (:red_ml, :green_ml, :blue_ml)"), 
+                                   {"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml})
+
+        connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (gold_change) VALUES (:gold_spent)"), 
+                                   {"gold_spent": -gold_spent})
+
         gold = data.gold - gold_spent
         num_red_ml = data.num_red_ml + red_ml
         num_blue_ml = data.num_blue_ml + blue_ml
@@ -61,10 +67,10 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     print(wholesale_catalog)
 
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory WHERE id=1"))
+        result = connection.execute(sqlalchemy.text("SELECT COALESCE(SUM(gold_change), 0) FROM gold_ledger"))
         data = result.fetchone()
 
-        gold = data.gold
+        gold = data[0]
 
         barrel_list = []
 
