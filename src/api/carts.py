@@ -66,11 +66,9 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
 
             total_payment += payment
             total_potions_bought += row.quantity
-
-            potion_bought = row.quantity
-
-            connection.execute(sqlalchemy.text("INSERT INTO potion_ledger (potion_id, potion_change) VALUES (:potion_id, potion_change)"), 
-                                    {"potion_id": row.potion_id, "potion_change": -potion_bought})
+            
+            connection.execute(sqlalchemy.text("INSERT INTO potion_ledger (potion_id, potion_change) VALUES (:potion_id, :potion_change)"), 
+                    {"potion_id": row.potion_id, "potion_change": row.quantity})
 
             connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (gold_change) VALUES (:payment)"), 
                                     {"payment": payment})
