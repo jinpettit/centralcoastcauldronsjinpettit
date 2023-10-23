@@ -41,7 +41,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
     with db.engine.begin() as connection:
 
         transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
-                                            {"description": "RED_ML delivered " + str(red_ml) + " GREEN_ML delivered " + str(green_ml) + " BLUE_ML delivered " + str(blue_ml)})
+                                            {"description": "RED_ML delivered " + str(red_ml) + " ,GREEN_ML delivered " + str(green_ml) + " ,BLUE_ML delivered " + str(blue_ml)})
         
         t_id = transaction_id.scalar_one()
 

@@ -37,11 +37,21 @@ def post_deliver_potions(potions_delivered: list[PotionInventory]):
 
             potion_id = data[0]
 
-            connection.execute(sqlalchemy.text("INSERT INTO potion_ledger (potion_id, potion_change) VALUES (:potion_id, :potion_change)"), 
-                                {"potion_id": potion_id, "potion_change": potion.quantity})
+            transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
+                                            {"description": str(potion.quantity) + " " + str(potion.potion_type) + " delivered"})
+        
+            t_id = transaction_id.scalar_one()
+
+            connection.execute(sqlalchemy.text("INSERT INTO potion_ledger (potion_id, potion_change, transaction_id) VALUES (:potion_id, :potion_change, :t_id)"), 
+                                {"potion_id": potion_id, "potion_change": potion.quantity, "t_id": t_id})
                 
-        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change) VALUES (:red_ml, :green_ml, :blue_ml)"), 
-                                {"red_ml": -red_ml_used, "green_ml": -green_ml_used, "blue_ml": -blue_ml_used})
+        transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
+                        {"description": str(potion.quantity) + " " + str(potion.potion_type) + " delivered"})
+    
+        t_id = transaction_id.scalar_one()
+
+        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change, transaction_id) VALUES (:red_ml, :green_ml, :blue_ml, :t_id)"), 
+                                {"red_ml": -red_ml_used, "green_ml": -green_ml_used, "blue_ml": -blue_ml_used, "t_id": t_id})
         
     return "OK" 
 
