@@ -40,7 +40,7 @@ def post_deliver_potions(potions_delivered: list[PotionInventory]):
             potion_id = data[0]
 
             transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
-                                            {"description": str(potion.quantity) + " " + str(potion.potion_type) + " delivered"})
+                                            {"description": str(potion.quantity) + " potions delivered"})
         
             t_id = transaction_id.scalar_one()
 
