@@ -40,11 +40,21 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
 
     with db.engine.begin() as connection:
 
-        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change) VALUES (:red_ml, :green_ml, :blue_ml)"), 
-                                   {"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml})
+        transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING transaction_id"), 
+                                            {"description": "RED_ML delivered " + red_ml + " GREEN_ML delivered " + green_ml + " BLUE_ML delivered " + blue_ml})
+        
+        t_id = transaction_id.scalar_one()
 
-        connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (gold_change) VALUES (:gold_spent)"), 
-                                   {"gold_spent": -gold_spent})
+        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change, transaction_id) VALUES (:red_ml, :green_ml, :blue_ml, :t_id)"), 
+                                   {"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "t_id": t_id})
+        
+        transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING transaction_id"), 
+                                            {"description": "Barrels purchase " + gold_spent + " GOLD"})
+        
+        t_id = transaction_id.scalar_one()
+
+        connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (gold_change, transaction_id) VALUES (:gold_spent, :t_id)"), 
+                                   {"gold_spent": -gold_spent, "t_id": t_id})
 
     return "OK"
 
