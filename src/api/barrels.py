@@ -48,7 +48,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
         connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change, transaction_id) VALUES (:red_ml, :green_ml, :blue_ml, :t_id)"), 
                                    {"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "t_id": t_id})
         
-        transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING transaction_id"), 
+        transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
                                             {"description": "Barrels purchase " + str(gold_spent) + " GOLD"})
         
         t_id = transaction_id.scalar_one()
