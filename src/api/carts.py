@@ -66,12 +66,23 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
 
             total_payment += payment
             total_potions_bought += row.quantity
-            
-            connection.execute(sqlalchemy.text("INSERT INTO potion_ledger (potion_id, potion_change) VALUES (:potion_id, :potion_change)"), 
-                    {"potion_id": row.potion_id, "potion_change": -(row.quantity)})
 
-            connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (gold_change) VALUES (:payment)"), 
-                                    {"payment": payment})
+            transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
+                                        {"description": "Checked out " + str(row.quantity) + " potions with id " + str(row.potion_id)})
+        
+            t_id = transaction_id.scalar_one()
+            
+            connection.execute(sqlalchemy.text("INSERT INTO potion_ledger (potion_id, potion_change, transaction_id) VALUES (:potion_id, :potion_change, :t_id)"), 
+                    {"potion_id": row.potion_id, "potion_change": -(row.quantity), "t_id": t_id})
+            
+            
+            transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
+                                        {"description": "Customer paid " + str(payment)})
+        
+            t_id = transaction_id.scalar_one()
+
+            connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (gold_change, transaction_id) VALUES (:payment, :t_id)"), 
+                                    {"payment": payment, "t_id": t_id})
         
             connection.execute(sqlalchemy.text("DELETE FROM cart_items WHERE cart_id = :cart_id"), 
                                                 {"cart_id": cart_id})

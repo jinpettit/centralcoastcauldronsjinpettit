@@ -21,11 +21,13 @@ def post_deliver_potions(potions_delivered: list[PotionInventory]):
     red_ml_used = 0
     green_ml_used = 0
     blue_ml_used = 0
+    dark_ml_used = 0
 
     for potion in potions_delivered:
         red_ml_used += potion.quantity * potion.potion_type[0]
         green_ml_used += potion.quantity * potion.potion_type[1]
         blue_ml_used += potion.quantity * potion.potion_type[2]
+        dark_ml_used += potion.quantity * potion.potion_type[3]
 
     with db.engine.begin() as connection:   
 
@@ -50,8 +52,8 @@ def post_deliver_potions(potions_delivered: list[PotionInventory]):
     
         t_id = transaction_id.scalar_one()
 
-        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change, transaction_id) VALUES (:red_ml, :green_ml, :blue_ml, :t_id)"), 
-                                {"red_ml": -red_ml_used, "green_ml": -green_ml_used, "blue_ml": -blue_ml_used, "t_id": t_id})
+        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change, dark_change, transaction_id) VALUES (:red_ml, :green_ml, :blue_ml, :dark_ml, :t_id)"), 
+                                {"red_ml": -red_ml_used, "green_ml": -green_ml_used, "blue_ml": -blue_ml_used, "dark_ml": -dark_ml_used, "t_id": t_id})
         
     return "OK" 
 
@@ -76,6 +78,7 @@ def get_bottle_plan():
         num_red_ml = data.red_ml
         num_green_ml = data.green_ml
         num_blue_ml = data.blue_ml
+        num_dark_ml = data.dark_ml
 
         potions = connection.execute(sqlalchemy.text("SELECT * FROM potion_table"))
 
@@ -83,11 +86,12 @@ def get_bottle_plan():
 
         for row in potions:
             potions_made = 0
-            while (potions_made < 5 and row.red <= num_red_ml and row.green <= num_green_ml and row.blue <= num_blue_ml):
+            while (potions_made < 5 and row.red <= num_red_ml and row.green <= num_green_ml and row.blue <= num_blue_ml and row.dark <= num_dark_ml):
                 potions_made += 1
                 num_red_ml -= row.red
                 num_green_ml -= row.green
                 num_blue_ml -= row.blue
+                num_dark_ml -= row.dark
 
             if (potions_made > 0):
                 potion_list.append({
