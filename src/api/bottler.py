@@ -86,7 +86,7 @@ def get_bottle_plan():
 
         for row in potions:
             potions_made = 0
-            while (potions_made < 5 and row.red <= num_red_ml and row.green <= num_green_ml and row.blue <= num_blue_ml and row.dark <= num_dark_ml):
+            while (potions_made < 3 and row.red <= num_red_ml and row.green <= num_green_ml and row.blue <= num_blue_ml and row.dark <= num_dark_ml):
                 potions_made += 1
                 num_red_ml -= row.red
                 num_green_ml -= row.green
