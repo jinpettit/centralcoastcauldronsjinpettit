@@ -97,7 +97,7 @@ def search_orders(
         if page_number >= 5:
             prev = str(page_number - 5)
 
-        if len(result) > 5:
+        if len(rows) > 5:
             next = str(page_number + 5)
 
         results = []    
