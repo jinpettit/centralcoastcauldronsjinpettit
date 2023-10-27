@@ -59,9 +59,9 @@ def search_orders(
     elif sort_col is search_sort_options.item_sku:
         order_by = db.potion_table.c.sku
     elif sort_col is search_sort_options.line_item_total:
-        order_by = db.potion_ledger.c.potion_change
+        order_by = db.cart_items.c.quantity
     elif sort_col is search_sort_options.timestamp:
-        order_by = db.potion_ledger.c.created_at
+        order_by = db.cart_items.c.created_at
     else:
         assert False
 
@@ -76,7 +76,7 @@ def search_orders(
         page_number = int(search_page)
 
     table = sqlalchemy.join(db.cart_items, db.carts, db.cart_items.c.cart_id == db.carts.c.id
-            ).join(db.potion_table,  db.cart_items.c.potion_id == db.potion_table.c.id
+            ).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id
             )
         
 
