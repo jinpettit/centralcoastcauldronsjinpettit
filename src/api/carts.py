@@ -75,7 +75,7 @@ def search_orders(
     else:
         start = int(search_page)
 
-    stmt = (sqlalchemy.select(db.carts.c.customer_name, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku)
+    stmt = (sqlalchemy.select(db.carts.c.customer_name, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku, db.potion_table.c.price)
             .select_from(db.cart_items).join(db.carts, db.cart_items.c.cart_id == db.carts.c.id).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id)
     .limit(6)
     .offset(start)
@@ -91,20 +91,34 @@ def search_orders(
         result = connection.execute(stmt)
         rows = result.fetchall()
 
+        prev = ""
+        next = ""
+
+        if search_page >= 5:
+            prev = str(search_page - 5)
+
+        if len(result) > 5:
+            next = str(search_page + 5)
+
+        results = []    
+        
+        for i, row in enumerate(rows):
+            if i >= 5:
+                break
+            result.append({
+                "line_item_id": row.id,
+                "item_sku": row.sku,
+                "customer_name": row.customer,
+                "line_item_total": row.price * row.quantity,
+                "timestamp": row.created_at,
+        })
+
         print(rows[0])
 
     return {
-        "previous": "",
-        "next": "",
-        "results": [
-            {
-                "line_item_id": 1,
-                "item_sku": "1 oblivion potion",
-                "customer_name": "Scaramouche",
-                "line_item_total": 50,
-                "timestamp": "2021-01-01T00:00:00Z",
-            }
-        ],
+        "previous": prev,
+        "next": next,
+        "results": result
     }
 
 class NewCart(BaseModel):
