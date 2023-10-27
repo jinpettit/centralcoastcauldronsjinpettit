@@ -105,7 +105,7 @@ def search_orders(
         for i, row in enumerate(rows):
             if i >= 5:
                 break
-            result.append({
+            results.append({
                 "line_item_id": row.id,
                 "item_sku": row.sku,
                 "customer_name": row.customer,
@@ -118,7 +118,7 @@ def search_orders(
     return {
         "previous": prev,
         "next": next,
-        "results": result
+        "results": results
     }
 
 class NewCart(BaseModel):
