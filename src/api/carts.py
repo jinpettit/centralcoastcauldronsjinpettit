@@ -77,7 +77,6 @@ def search_orders(
 
     table = sqlalchemy.join(db.cart_items, db.carts, db.cart_items.c.cart_id == db.carts.c.id
             ).join(db.potion_table,  db.cart_items.c.potion_id == db.potion_table.c.id
-            ).join(db.potion_ledger, db.potion_ledger.c.potion_id == db.cart_items.c.potion_id
             )
         
 
