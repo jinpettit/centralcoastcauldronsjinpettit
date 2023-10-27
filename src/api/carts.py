@@ -90,6 +90,8 @@ def search_orders(
 
     with db.engine.begin() as connection:
         result = connection.execute(stmt)
+
+        print(result)
         rows = result.fetchall()
 
         prev = ""
@@ -102,6 +104,8 @@ def search_orders(
             next = str(page_number + 5)
 
         results = []    
+
+        i = 0
         
         for i, row in enumerate(rows):
             if i >= 5:
