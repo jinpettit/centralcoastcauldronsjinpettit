@@ -55,7 +55,7 @@ def search_orders(
     """
     
     if sort_col is search_sort_options.customer_name:
-        order_by = db.carts.c.customer_name
+        order_by = db.carts.c.customer
     elif sort_col is search_sort_options.item_sku:
         order_by = db.potion_table.c.sku
     elif sort_col is search_sort_options.line_item_total:
