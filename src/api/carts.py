@@ -53,7 +53,15 @@ def search_orders(
     Your results must be paginated, the max results you can return at any
     time is 5 total line items.
     """
-
+    '''
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text(
+            """
+                SELECT cart_items.cart_id, carts.customer, carts.created_at, potion_table.sku, potion_table.price
+                FROM cart_items JOIN carts ON cart_items.cart_id = cart_id
+                                                    
+                """))
+    '''
     return {
         "previous": "",
         "next": "",
@@ -75,11 +83,17 @@ class NewCart(BaseModel):
 def create_cart(new_cart: NewCart):
     """ """
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("INSERT INTO carts (customer) VALUES (:name) RETURNING id"), {"name": new_cart.customer})
+        result = connection.execute(sqlalchemy.text("SELECT count(*) FROM carts WHERE customer = :name"), {"name": new_cart.customer}).scalar_one()
 
-        data = result.fetchone()
+        if (result > 0):
+            result = connection.execute(sqlalchemy.text("SELECT id FROM carts WHERE customer = :name"), {"name": new_cart.customer})
+
+        else:
+            result = connection.execute(sqlalchemy.text("INSERT INTO carts (customer) VALUES (:name) RETURNING id"), {"name": new_cart.customer})
+
+        c_id = result.scalar_one()
         
-    return {"cart_id": data[0]}
+    return {"cart_id": c_id}
 
 @router.get("/{cart_id}")
 def get_cart(cart_id: int):
@@ -96,12 +110,19 @@ def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
         result = connection.execute(sqlalchemy.text("SELECT id FROM potion_table WHERE sku = :item_sku"), 
                                     {"item_sku": item_sku})
 
-        data = result.fetchone()
+        potion_id = result.scalar_one()
 
-        potion_id = data[0]
+        result = connection.execute(sqlalchemy.text("SELECT count(*) FROM cart_items WHERE cart_id = :cart_id and potion_id = :potion_id"), 
+                                    {"cart_id": cart_id, "potion_id": potion_id}).scalar_one()
         
-        connection.execute(sqlalchemy.text("INSERT INTO cart_items (cart_id, quantity, potion_id) VALUES (:cart_id, :quantity, :potion_id)"), 
-                                    {"cart_id": cart_id, "quantity": cart_item.quantity, "potion_id": potion_id})
+        if (result > 0):
+            print("ok")
+            connection.execute(sqlalchemy.text("UPDATE cart_items SET quantity = :quantity WHERE cart_id = :cart_id and potion_id = :potion_id"), 
+                            {"cart_id": cart_id, "quantity": cart_item.quantity, "potion_id": potion_id})
+
+        else:
+            connection.execute(sqlalchemy.text("INSERT INTO cart_items (cart_id, quantity, potion_id) VALUES (:cart_id, :quantity, :potion_id)"), 
+                                        {"cart_id": cart_id, "quantity": cart_item.quantity, "potion_id": potion_id})
         
     print(potion_id)
     return "OK"
@@ -142,11 +163,5 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
             connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (gold_change, transaction_id) VALUES (:payment, :t_id)"), 
                                     {"payment": payment, "t_id": t_id})
         
-            connection.execute(sqlalchemy.text("DELETE FROM cart_items WHERE cart_id = :cart_id"), 
-                                                {"cart_id": cart_id})
-            
-            connection.execute(sqlalchemy.text("DELETE FROM carts WHERE id = :id"), 
-                                                {"id": cart_id})
-        
-    print("total_potions_bought " + str(total_potions_bought) + " total_gold_paid " + str(payment)) 
-    return {"total_potions_bought": total_potions_bought, "total_gold_paid": payment}
+    print("total_potions_bought " + str(total_potions_bought) + " total_gold_paid " + str(total_payment)) 
+    return {"total_potions_bought": total_potions_bought, "total_gold_paid": total_payment}
