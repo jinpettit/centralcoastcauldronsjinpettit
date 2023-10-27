@@ -88,18 +88,8 @@ def search_orders(
     if potion_sku != "":
         stmt = stmt.where(db.potion_table.c.sku.ilike(f"%{potion_sku}%"))    
 
-
     prev = ""
-    next = ""
-
-    if page_number >= 5:
-        prev = str(page_number - 5)
-
-    if len(rows) > 5:
-        if (prev == ""):
-            next = 5
-        else:
-            next = str(page_number + 5)  
+    next = "" 
 
     with db.engine.begin() as connection:
         result = connection.execute(stmt)
@@ -110,10 +100,19 @@ def search_orders(
             print(row.id)
             print(row.customer)
 
+        if page_number >= 5:
+            prev = str(page_number - 5)
+
+        if len(rows) > 5:
+            if (prev == ""):
+                next = 5
+            else:
+                next = str(page_number + 5) 
+
         results = []    
 
         i = 0
-        
+
         for i, row in enumerate(rows):
             if i >= 5:
                 break
