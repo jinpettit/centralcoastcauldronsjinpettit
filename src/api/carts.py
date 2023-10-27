@@ -91,8 +91,11 @@ def search_orders(
     with db.engine.begin() as connection:
         result = connection.execute(stmt)
 
-        print(result)
         rows = result.fetchall()
+
+        for row in rows:
+            print(row.id)
+            print(row.customer)
 
         prev = ""
         next = ""
