@@ -113,8 +113,6 @@ def search_orders(
                 "timestamp": row.created_at,
         })
 
-        print(rows[0])
-
     return {
         "previous": prev,
         "next": next,
