@@ -71,9 +71,9 @@ def search_orders(
         order_by = sqlalchemy.desc(order_by)
 
     if search_page == "":
-        start = 0
+        page_number = 0
     else:
-        start = int(search_page)
+        start = int(page_number)
 
     stmt = (sqlalchemy.select(db.carts.c.customer, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku, db.potion_table.c.price)
             .select_from(db.cart_items).join(db.carts, db.cart_items.c.cart_id == db.carts.c.id).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id)
@@ -94,11 +94,11 @@ def search_orders(
         prev = ""
         next = ""
 
-        if search_page >= 5:
-            prev = str(search_page - 5)
+        if page_number >= 5:
+            prev = str(page_number - 5)
 
         if len(result) > 5:
-            next = str(search_page + 5)
+            next = str(page_number + 5)
 
         results = []    
         
