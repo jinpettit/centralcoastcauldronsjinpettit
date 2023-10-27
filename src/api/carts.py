@@ -86,7 +86,20 @@ def search_orders(
         stmt = stmt.where(db.carts.c.customer.ilike(f"%{customer_name}%"))
     
     if potion_sku != "":
-        stmt = stmt.where(db.potion_table.c.sku.ilike(f"%{potion_sku}%"))      
+        stmt = stmt.where(db.potion_table.c.sku.ilike(f"%{potion_sku}%"))    
+
+
+    prev = ""
+    next = ""
+
+    if page_number >= 5:
+        prev = str(page_number - 5)
+
+    if len(rows) > 5:
+        if (prev == ""):
+            next = 5
+        else:
+            next = str(page_number + 5)  
 
     with db.engine.begin() as connection:
         result = connection.execute(stmt)
@@ -96,15 +109,6 @@ def search_orders(
         for row in rows:
             print(row.id)
             print(row.customer)
-
-        prev = ""
-        next = ""
-
-        if page_number >= 5:
-            prev = str(page_number - 5)
-
-        if len(rows) > 5:
-            next = str(page_number + 5)
 
         results = []    
 
