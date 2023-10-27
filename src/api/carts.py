@@ -74,14 +74,18 @@ def search_orders(
         page_number = 0
     else:
         page_number = int(search_page)
+
+    table = sqlalchemy.join(db.carts, db.cart_items.c.cart_id == db.carts.c.id
+            ).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id
+            ).join(db.potion_ledger, db.potion_ledger.c.potion_id == db.cart_items.c.potion_id
+            ).join(db.cart_items)
         
 
     stmt = (sqlalchemy.select(db.carts.c.customer, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku, db.potion_table.c.price)
-            .select_from(db.cart_items).join(db.carts, db.cart_items.c.cart_id == db.carts.c.id).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id)
-            .join(db.potion_ledger, db.potion_ledger.c.potion_id == db.cart_items.c.potion_id)
-    .limit(6)
-    .offset(page_number)
-    .order_by(order_by))
+        .select_from(table)
+        .limit(6)
+        .offset(page_number)
+        .order_by(order_by))
 
     if customer_name != "":
         stmt = stmt.where(db.carts.c.customer.ilike(f"%{customer_name}%"))
