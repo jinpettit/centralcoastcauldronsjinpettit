@@ -53,15 +53,47 @@ def search_orders(
     Your results must be paginated, the max results you can return at any
     time is 5 total line items.
     """
-    '''
+    
+    if sort_col is search_sort_options.customer_name:
+        order_by = db.carts.c.customer_name
+    elif sort_col is search_sort_options.item_sku:
+        order_by = db.potion_table.c.sku
+    elif sort_col is search_sort_options.line_item_total:
+        order_by = db.potion_ledger.c.potion_change
+    elif sort_col is search_sort_options.timestamp:
+        order_by = db.potion_ledge.c.created_at
+    else:
+        assert False
+
+    if sort_order == search_sort_order.asc:
+        order_by = sqlalchemy.asc(order_by)
+    if sort_order == search_sort_order.desc:
+        order_by = sqlalchemy.desc(order_by)
+
+    if search_page == "":
+        start = 0
+    else:
+        start = int(search_page)
+
+
+    stmt = (sqlalchemy.select(db.carts.c.customer_name, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku)
+            .select_from(db.cart_items).join(db.carts, db.cart_items.c.cart_id == db.carts.c.id).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id)
+    .limit(6)
+    .offset(start)
+    .order_by(order_by))
+
+    if customer_name != "":
+        stmt = stmt.where(db.carts.c.customer.ilike(f"%{customer_name}%"))
+    
+    if potion_sku != "":
+        stmt = stmt.where(db.potion_table.c.sku.ilike(f"%{potion_sku}%"))      
+
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text(
-            """
-                SELECT cart_items.cart_id, carts.customer, carts.created_at, potion_table.sku, potion_table.price
-                FROM cart_items JOIN carts ON cart_items.cart_id = cart_id
-                                                    
-                """))
-    '''
+        result = connection.execute(stmt)
+        rows = result.fetchall()
+
+        print(rows[0])
+
     return {
         "previous": "",
         "next": "",
