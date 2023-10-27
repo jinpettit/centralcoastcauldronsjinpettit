@@ -82,7 +82,7 @@ def search_orders(
 
     stmt = (sqlalchemy.select(db.carts.c.customer, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku, db.potion_table.c.price)
         .select_from(table)
-        .limit(6)
+        .limit(5)
         .offset(page_number)
         .order_by(order_by))
 
