@@ -61,7 +61,7 @@ def search_orders(
     elif sort_col is search_sort_options.line_item_total:
         order_by = db.cart_items.c.quantity * db.potion_table.c.price
     elif sort_col is search_sort_options.timestamp:
-        order_by = db.cart_items.c.created_at
+        order_by = db.potion_ledger.c.created_at
     else:
         assert False
 
@@ -77,7 +77,7 @@ def search_orders(
 
     table = sqlalchemy.join(db.cart_items, db.carts, db.cart_items.c.cart_id == db.carts.c.id
             ).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id
-            )
+            ).join(db.potion_ledger, db.potion_ledger.cart_items_id == db.cart_items.c.id)
         
 
     stmt = (sqlalchemy.select(db.carts.c.customer, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku, db.potion_table.c.price)
@@ -208,8 +208,8 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
         
             t_id = transaction_id.scalar_one()
             
-            connection.execute(sqlalchemy.text("INSERT INTO potion_ledger (potion_id, potion_change, transaction_id) VALUES (:potion_id, :potion_change, :t_id)"), 
-                    {"potion_id": row.potion_id, "potion_change": -(row.quantity), "t_id": t_id})
+            connection.execute(sqlalchemy.text("INSERT INTO potion_ledger (potion_id, potion_change, transaction_id, cart_items_id) VALUES (:potion_id, :potion_change, :t_id, :c_id)"), 
+                    {"potion_id": row.potion_id, "potion_change": -(row.quantity), "t_id": t_id, "c_id": row.cart_id})
             
             
             transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
