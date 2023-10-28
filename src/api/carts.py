@@ -194,7 +194,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     total_payment = 0
     total_potions_bought = 0
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT cart_items.cart_id, cart_items.quantity, cart_items.potion_id, potion_table.price FROM cart_items LEFT JOIN potion_table ON cart_items.potion_id = potion_table.id WHERE cart_id = :cart_id"), 
+        result = connection.execute(sqlalchemy.text("SELECT cart_items.id, cart_items.cart_id, cart_items.quantity, cart_items.potion_id, potion_table.price FROM cart_items LEFT JOIN potion_table ON cart_items.potion_id = potion_table.id WHERE cart_id = :cart_id"), 
                                     {"cart_id": cart_id})
         
         for row in result:
@@ -209,7 +209,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
             t_id = transaction_id.scalar_one()
             
             connection.execute(sqlalchemy.text("INSERT INTO potion_ledger (potion_id, potion_change, transaction_id, cart_items_id) VALUES (:potion_id, :potion_change, :t_id, :c_id)"), 
-                    {"potion_id": row.potion_id, "potion_change": -(row.quantity), "t_id": t_id, "c_id": row.cart_id})
+                    {"potion_id": row.potion_id, "potion_change": -(row.quantity), "t_id": t_id, "c_id": row.id})
             
             
             transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
