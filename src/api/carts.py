@@ -59,7 +59,7 @@ def search_orders(
     elif sort_col is search_sort_options.item_sku:
         order_by = db.potion_table.c.sku
     elif sort_col is search_sort_options.line_item_total:
-        order_by = db.cart_items.c.quantity
+        order_by = db.cart_items.c.quantity * db.potion_table.c.price
     elif sort_col is search_sort_options.timestamp:
         order_by = db.cart_items.c.created_at
     else:
