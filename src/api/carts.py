@@ -84,7 +84,8 @@ def search_orders(
         .select_from(table)
         .limit(6)
         .offset(page_number)
-        .order_by(order_by))
+        .order_by(order_by)
+        .distinct())
 
     if customer_name != "":
         stmt = stmt.where(db.carts.c.customer.ilike(f"%{customer_name}%"))
