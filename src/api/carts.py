@@ -79,13 +79,11 @@ def search_orders(
             ).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id
             ).join(db.potion_ledger, db.potion_ledger.c.cart_items_id == db.cart_items.c.id)
         
-
     stmt = (sqlalchemy.select(db.carts.c.customer, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku, db.potion_table.c.price)
         .select_from(table)
         .limit(6)
         .offset(page_number)
-        .order_by(order_by)
-        .distinct())
+        .order_by(order_by))
 
     if customer_name != "":
         stmt = stmt.where(db.carts.c.customer.ilike(f"%{customer_name}%"))
