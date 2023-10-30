@@ -82,6 +82,7 @@ def search_orders(
 
     stmt = (sqlalchemy.select(db.carts.c.customer, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku, db.potion_table.c.price)
         .select_from(table)
+        .limit(6)
         .offset(page_number)
         .order_by(order_by))
 
@@ -98,10 +99,6 @@ def search_orders(
         result = connection.execute(stmt)
 
         rows = result.fetchall()
-
-        for row in rows:
-            print(row.id)
-            print(row.customer)
 
         if page_number >= 5:
             prev = str(page_number - 5)
