@@ -66,14 +66,22 @@ def search_orders(
         assert False
 
     if sort_order == search_sort_order.asc:
-        order_by = sqlalchemy.asc(order_by)
+        order_by = order_by.asc()
     if sort_order == search_sort_order.desc:
-        order_by = sqlalchemy.desc(order_by)
+        order_by = order_by.desc()
 
-    if search_page == "":
-        page_number = 0
-    else:
+
+    prev = ""
+    next = "" 
+
+    page_number = 0
+
+    if search_page != "":
         page_number = int(search_page)
+
+    if page_number >= 5:
+        prev = str(page_number- 5)
+    next = str(page_number + 5)
 
     table = sqlalchemy.join(db.cart_items, db.carts, db.cart_items.c.cart_id == db.carts.c.id
             ).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id
@@ -85,37 +93,21 @@ def search_orders(
         .limit(5)
         .offset(page_number)
         .order_by(order_by))
-
+    
     if customer_name != "":
         stmt = stmt.where(db.carts.c.customer.ilike(f"%{customer_name}%"))
     
     if potion_sku != "":
         stmt = stmt.where(db.potion_table.c.sku.ilike(f"%{potion_sku}%"))    
 
-    prev = ""
-    next = "" 
-
     with db.engine.begin() as connection:
         result = connection.execute(stmt)
 
         rows = result.fetchall()
 
-        if page_number >= 5:
-            prev = str(page_number - 5)
-
-        if len(rows) > 5:
-            if (prev == ""):
-                next = 5
-            else:
-                next = str(page_number + 5) 
-
         results = []    
 
-        i = 0
-
-        for i, row in enumerate(rows):
-            if i >= 5:
-                break
+        for row in rows:
             results.append({
                 "line_item_id": row.id,
                 "item_sku": row.sku,
@@ -191,7 +183,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     total_payment = 0
     total_potions_bought = 0
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT cart_items.id, cart_items.cart_id, cart_items.quantity, cart_items.potion_id, potion_table.price FROM cart_items LEFT JOIN potion_table ON cart_items.potion_id = potion_table.id WHERE cart_id = :cart_id"), 
+        result = connection.execute(sqlalchemy.text("SELECT cart_items.id, cart_items.cart_id, cart_items.quantity, cart_items.potion_id, potion_table.price FROM cart_items LEFT JOIN potion_table ON cart_items.potion_id = potion_table.id WHERE cart_id = :cart_id and checkout = false"), 
                                     {"cart_id": cart_id})
         
         for row in result:
@@ -216,6 +208,8 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
 
             connection.execute(sqlalchemy.text("INSERT INTO gold_ledger (gold_change, transaction_id) VALUES (:payment, :t_id)"), 
                                     {"payment": payment, "t_id": t_id})
+            
+            connection.execute(sqlalchemy.text("UPDATE cart_items SET checkout = true WHERE cart_id = :cart_id"), [{"cart_id": cart_id}])
         
     print("total_potions_bought " + str(total_potions_bought) + " total_gold_paid " + str(total_payment)) 
     return {"total_potions_bought": total_potions_bought, "total_gold_paid": total_payment}
