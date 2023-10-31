@@ -87,6 +87,9 @@ def get_bottle_plan():
         result = connection.execute(sqlalchemy.text("SELECT SUM(potion_change) FROM potion_ledger"))
         total_potions = result.scalar_one()
 
+        if total_potions is None:
+            total_potions = 0
+
         print(total_potions)
 
         for row in potions:
