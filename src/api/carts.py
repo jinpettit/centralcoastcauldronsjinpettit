@@ -61,7 +61,7 @@ def search_orders(
     elif sort_col is search_sort_options.line_item_total:
         order_by = db.potion_table.c.price
     elif sort_col is search_sort_options.timestamp:
-        order_by = db.potion_ledger.c.created_at
+        order_by = db.cart_items.c.created_at
     else:
         assert False
 
@@ -83,8 +83,7 @@ def search_orders(
     next = str(page_number + 5)
 
     table = sqlalchemy.join(db.cart_items, db.carts, db.cart_items.c.cart_id == db.carts.c.id
-            ).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id
-            ).join(db.potion_ledger, db.potion_ledger.c.cart_items_id == db.cart_items.c.id)
+            ).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id)
         
     stmt = (sqlalchemy.select(db.carts.c.customer, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku, db.potion_table.c.price)
         .select_from(table)
