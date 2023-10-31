@@ -78,10 +78,6 @@ def search_orders(
     if search_page != "":
         page_number = int(search_page)
 
-    if page_number >= 5:
-        prev = str(page_number - 5)
-    next = str(page_number + 5)
-
     print(page_number)
 
     table = sqlalchemy.join(db.cart_items, db.carts, db.cart_items.c.cart_id == db.carts.c.id
@@ -115,6 +111,12 @@ def search_orders(
                 "line_item_total": row.price * row.quantity,
                 "timestamp": row.created_at,
             })
+
+    if page_number >= 5:
+        prev = str(page_number - 5)
+    n = min((page_number + 5), result.len())
+
+    next = str(n)
 
     return {
         "previous": prev,
