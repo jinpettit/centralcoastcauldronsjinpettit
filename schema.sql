@@ -26,6 +26,7 @@ create table
     potion_id bigint null,
     quantity integer null,
     cart_id bigint null,
+    checkout boolean null default false,
     constraint cart_item_pkey primary key (id),
     constraint cart_items_cart_id_fkey foreign key (cart_id) references carts (id),
     constraint cart_items_potion_id_fkey foreign key (potion_id) references potion_table (id)
@@ -61,7 +62,9 @@ create table
     potion_id bigint null,
     potion_change integer null default 0,
     transaction_id bigint null,
+    cart_items_id bigint null,
     constraint potion_ledger_pkey primary key (id),
+    constraint potion_ledger_cart_items_id_fkey foreign key (cart_items_id) references cart_items (id),
     constraint potion_ledger_potion_id_fkey foreign key (potion_id) references potion_table (id),
     constraint potion_ledger_transaction_id_fkey foreign key (transaction_id) references transactions (id)
   ) tablespace pg_default;

@@ -84,10 +84,16 @@ def get_bottle_plan():
 
         potion_list = []
 
+        result = connection.execute(sqlalchemy.text("SELECT SUM(potion_change) FROM potion_ledger"))
+        total_potions = result.scalar_one()
+
+        print(total_potions)
+
         for row in potions:
             potions_made = 0
-            while (potions_made < 3 and row.red <= num_red_ml and row.green <= num_green_ml and row.blue <= num_blue_ml and row.dark <= num_dark_ml):
+            while (total_potions < 300 and row.red <= num_red_ml and row.green <= num_green_ml and row.blue <= num_blue_ml and row.dark <= num_dark_ml):
                 potions_made += 1
+                total_potions += 1
                 num_red_ml -= row.red
                 num_green_ml -= row.green
                 num_blue_ml -= row.blue
