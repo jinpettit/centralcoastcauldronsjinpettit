@@ -81,7 +81,8 @@ def search_orders(
         
     stmt = (sqlalchemy.select(db.carts.c.customer, db.cart_items.c.id, db.cart_items.c.created_at, db.cart_items.c.quantity, db.potion_table.c.sku, db.potion_table.c.price)
         .select_from(table)
-        .limit(6)
+        .where(db.cart_items.c.checkout == True)
+        .limit(5)
         .offset(page_number)
         .order_by(order_by))
 
@@ -165,12 +166,12 @@ def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
 
         potion_id = result.scalar_one()
 
-        result = connection.execute(sqlalchemy.text("SELECT count(*) FROM cart_items WHERE cart_id = :cart_id and potion_id = :potion_id"), 
+        result = connection.execute(sqlalchemy.text("SELECT count(*) FROM cart_items WHERE cart_id = :cart_id and potion_id = :potion_id and checkout = false"), 
                                     {"cart_id": cart_id, "potion_id": potion_id}).scalar_one()
         
         if (result > 0):
             print("ok")
-            connection.execute(sqlalchemy.text("UPDATE cart_items SET quantity = :quantity WHERE cart_id = :cart_id and potion_id = :potion_id"), 
+            connection.execute(sqlalchemy.text("UPDATE cart_items SET quantity = :quantity WHERE cart_id = :cart_id and potion_id = :potion_id and checkout = false"), 
                             {"cart_id": cart_id, "quantity": cart_item.quantity, "potion_id": potion_id})
 
         else:
