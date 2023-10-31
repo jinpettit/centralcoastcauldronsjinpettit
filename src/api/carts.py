@@ -70,10 +70,17 @@ def search_orders(
     else:
         order_by = order_by.asc()
 
+    prev = ""
+    next = "" 
+
     page_number = 0
 
     if search_page != "":
         page_number = int(search_page)
+
+    if page_number >= 5:
+        prev = str(page_number - 5)
+    next = str(page_number + 5)
 
     table = sqlalchemy.join(db.cart_items, db.carts, db.cart_items.c.cart_id == db.carts.c.id
             ).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id)
@@ -97,18 +104,6 @@ def search_orders(
         rows = result.fetchall()
 
         results = []    
-
-        prev = ""
-        next = "" 
-
-        if page_number >= 5:
-            prev = str(page_number - 5)
-
-        if len(rows) > 5:
-            if (prev == ""):
-                next = 5
-            else:
-                next = str(page_number + 5) 
 
         for row in rows:
             results.append({
