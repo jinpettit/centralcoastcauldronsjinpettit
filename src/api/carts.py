@@ -90,7 +90,8 @@ def search_orders(
         .select_from(table)
         .where(db.cart_items.c.checkout == True)
         .limit(5)
-        .offset(page_number))
+        .offset(page_number)
+        .order_by(order_by))
     
     if customer_name != "":
         stmt = stmt.where(db.carts.c.customer.ilike(f"%{customer_name}%"))
