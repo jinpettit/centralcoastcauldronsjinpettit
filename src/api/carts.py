@@ -114,7 +114,7 @@ def search_orders(
 
     if page_number >= 5:
         prev = str(page_number - 5)
-    n = min((page_number + 5), len(results.len))
+    n = min((page_number + 5), len(results))
 
     next = str(n)
 
