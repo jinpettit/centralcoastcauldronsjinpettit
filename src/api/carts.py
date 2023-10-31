@@ -82,6 +82,8 @@ def search_orders(
         prev = str(page_number - 5)
     next = str(page_number + 5)
 
+    print(page_number)
+
     table = sqlalchemy.join(db.cart_items, db.carts, db.cart_items.c.cart_id == db.carts.c.id
             ).join(db.potion_table, db.cart_items.c.potion_id == db.potion_table.c.id)
         
