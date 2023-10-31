@@ -59,17 +59,16 @@ def search_orders(
     elif sort_col is search_sort_options.item_sku:
         order_by = db.potion_table.c.sku
     elif sort_col is search_sort_options.line_item_total:
-        order_by = db.cart_items.c.quantity * db.potion_table.c.price
+        order_by = db.potion_table.c.price
     elif sort_col is search_sort_options.timestamp:
         order_by = db.potion_ledger.c.created_at
     else:
         assert False
 
-    if sort_order == search_sort_order.asc:
-        order_by = order_by.asc()
     if sort_order == search_sort_order.desc:
         order_by = order_by.desc()
-
+    else:
+        order_by = order_by.asc()
 
     prev = ""
     next = "" 
@@ -80,7 +79,7 @@ def search_orders(
         page_number = int(search_page)
 
     if page_number >= 5:
-        prev = str(page_number- 5)
+        prev = str(page_number - 5)
     next = str(page_number + 5)
 
     table = sqlalchemy.join(db.cart_items, db.carts, db.cart_items.c.cart_id == db.carts.c.id
@@ -91,8 +90,7 @@ def search_orders(
         .select_from(table)
         .where(db.cart_items.c.checkout == True)
         .limit(5)
-        .offset(page_number)
-        .order_by(order_by))
+        .offset(page_number))
     
     if customer_name != "":
         stmt = stmt.where(db.carts.c.customer.ilike(f"%{customer_name}%"))
