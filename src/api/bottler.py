@@ -102,13 +102,9 @@ def get_bottle_plan():
             
         potions_per_type = total_potions // types
 
-        print(types)
-        print(total_potions)
-        print(potions_per_type)
-
         for row in potions:
             potions_made = 0
-            while (total_potions < 300 and potions_made < bottles_per_type and row.red <= num_red_ml and row.green <= num_green_ml and row.blue <= num_blue_ml and row.dark <= num_dark_ml):
+            while (total_potions < 300 and potions_made < potions_per_type and row.red <= num_red_ml and row.green <= num_green_ml and row.blue <= num_blue_ml and row.dark <= num_dark_ml):
                 potions_made += 1
                 total_potions += 1
                 num_red_ml -= row.red
