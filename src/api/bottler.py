@@ -80,7 +80,13 @@ def get_bottle_plan():
         num_blue_ml = data.blue_ml
         num_dark_ml = data.dark_ml
 
+        total_ml = num_red_ml + num_green_ml + num_blue_ml + num_dark_ml
+
         potions = connection.execute(sqlalchemy.text("SELECT * FROM potion_table"))
+
+        result = potions.fetchall()
+
+        types = len(result)
 
         potion_list = []
 
@@ -92,9 +98,13 @@ def get_bottle_plan():
 
         print(total_potions)
 
+        total_potions = (total_ml) // 100
+            
+        potions_per_type = total_potions // types
+
         for row in potions:
             potions_made = 0
-            while (total_potions < 300 and row.red <= num_red_ml and row.green <= num_green_ml and row.blue <= num_blue_ml and row.dark <= num_dark_ml):
+            while (total_potions < 300 and potions_made < bottles_per_type and row.red <= num_red_ml and row.green <= num_green_ml and row.blue <= num_blue_ml and row.dark <= num_dark_ml):
                 potions_made += 1
                 total_potions += 1
                 num_red_ml -= row.red
