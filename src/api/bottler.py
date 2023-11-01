@@ -98,9 +98,9 @@ def get_bottle_plan():
 
         print(total_potions)
 
-        total_potions = (total_ml) // 100
+        max_potions = (total_ml) // 100
             
-        potions_per_type = total_potions // types
+        potions_per_type = max_potions // types
 
         for row in potions:
             potions_made = 0
