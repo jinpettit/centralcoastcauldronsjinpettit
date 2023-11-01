@@ -31,12 +31,12 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
     
     for barrel in barrels_delivered:
         gold_spent += barrel.price * barrel.quantity
-        if barrel.sku == "SMALL_RED_BARREL":
-            red_ml = barrel.ml_per_barrel * barrel.quantity
-        elif barrel.sku == "SMALL_BLUE_BARREL":
-            blue_ml = barrel.ml_per_barrel * barrel.quantity
-        elif barrel.sku == "SMALL_GREEN_BARREL":
-            green_ml = barrel.ml_per_barrel * barrel.quantity
+        if barrel.potion_type == [1, 0, 0, 0]:
+            red_ml += barrel.ml_per_barrel * barrel.quantity
+        elif barrel.potion_type == [0, 1, 0, 0]
+            green_ml += barrel.ml_per_barrel * barrel.quantity
+        elif barrel.potion_type == [0, 0, 1, 0]:
+            blue_ml += barrel.ml_per_barrel * barrel.quantity
 
     with db.engine.begin() as connection:
 
