@@ -27,6 +27,7 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
     red_ml = 0
     blue_ml = 0
     green_ml = 0
+    dark_ml = 0
     gold_spent = 0
     
     for barrel in barrels_delivered:
@@ -37,16 +38,18 @@ def post_deliver_barrels(barrels_delivered: list[Barrel]):
             green_ml += barrel.ml_per_barrel * barrel.quantity
         elif barrel.potion_type == [0, 0, 1, 0]:
             blue_ml += barrel.ml_per_barrel * barrel.quantity
+        elif barrel.potion_type == [0, 0, 0, 1]:
+            dark_ml += barrel.ml_per_barrel * barrel.quantity
 
     with db.engine.begin() as connection:
 
         transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
-                                            {"description": "RED_ML delivered " + str(red_ml) + ", GREEN_ML delivered " + str(green_ml) + ", BLUE_ML delivered " + str(blue_ml)})
+                                            {"description": "RED_ML delivered " + str(red_ml) + ", GREEN_ML delivered " + str(green_ml) + ", BLUE_ML delivered " + str(blue_ml) + ", BLUE_ML delivered " + str(dark_ml)})
         
         t_id = transaction_id.scalar_one()
 
-        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change, transaction_id) VALUES (:red_ml, :green_ml, :blue_ml, :t_id)"), 
-                                   {"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "t_id": t_id})
+        connection.execute(sqlalchemy.text("INSERT INTO ml_ledger (red_change, green_change, blue_change, dark_change, transaction_id) VALUES (:red_ml, :green_ml, :blue_ml, :dark_ml, :t_id)"), 
+                                   {"red_ml": red_ml, "green_ml": green_ml, "blue_ml": blue_ml, "dark_ml": dark_ml, "t_id": t_id})
         
         transaction_id = connection.execute(sqlalchemy.text("INSERT INTO transactions (description) VALUES (:description) RETURNING id"), 
                                             {"description": "Barrels purchase " + str(gold_spent) + " GOLD"})
